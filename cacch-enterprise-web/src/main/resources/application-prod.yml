@@ -1,0 +1,25 @@
+# 生产环境配置（生产启动不得操作数据库结构；敏感配置建议通过 Tomcat setenv.sh 外置注入）
+spring:
+  datasource:
+    url: jdbc:postgresql://127.0.0.1:5432/cacch_enterprise
+    username: your_username
+    password: your_password
+
+  data:
+    redis:
+      host: 127.0.0.1
+      port: 6379
+      # password: your_redis_password
+
+  # Flyway：prod 环境禁止自动迁移，prod 部署前须确认 test 已完成迁移
+  flyway:
+    enabled: false
+    locations: classpath:db/migration
+
+cacch:
+  security:
+    jwt-secret: CHANGE_ME_VIA_EXTERNAL_CONFIG       # 生产密钥必须通过 /opt/cacch/config/ 外置配置或配置中心覆盖
+    access-token-expire: 7200
+    refresh-token-expire: 604800
+  cors:
+    allowed-origins: https://your-prod-domain

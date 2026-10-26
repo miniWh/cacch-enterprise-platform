@@ -1,0 +1,11 @@
+-- ============================================================
+-- V1__init_schema.sql
+-- cacch-enterprise-platform 初始 Schema（占位，随首个业务表需求填充）
+--
+-- 约束（见 .trae/rules/project_rules.md 第六节）：
+--   1. 表名统一前缀 sys_，全小写下划线分隔，如 sys_user、sys_role
+--   2. 主键 id BIGINT，由 MyBatis-Plus 雪花算法生成，禁止 SERIAL / 自增
+--   3. 标准字段：create_time / update_time / create_by / update_by / deleted
+--   4. PostgreSQL 12：禁止 MERGE，幂等写入使用 INSERT ... ON CONFLICT；JSON 字段用 JSONB
+-- 执行策略：仅 test 环境由 Flyway 自动执行；prod 禁止自动迁移
+-- ============================================================

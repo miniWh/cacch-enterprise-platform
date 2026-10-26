@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>com.cacch</groupId>
+        <artifactId>cacch-enterprise-platform</artifactId>
+        <version>1.0.0-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>cacch-enterprise-common</artifactId>
+    <packaging>jar</packaging>
+    <name>cacch-enterprise-common</name>
+    <description>公共基础模块：全局常量、通用工具类、统一异常、统一返回体、通用注解、基础 DTO、分页对象、配置 POJO</description>
+</project>

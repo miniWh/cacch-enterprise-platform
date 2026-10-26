@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 日志唯一配置入口：禁止在 application*.yml 中配置 logging.level / logging.file（见 .trae/rules/project_rules.md 第十一节） -->
+<configuration>
+    <!-- 日志格式：时间、线程、traceId（由 TraceIdFilter 写入 MDC）、级别、logger、消息 -->
+    <property name="LOG_PATTERN"
+              value="%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] [traceId:%X{traceId}] %-5level %logger{50} - %msg%n"/>
+
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>${LOG_PATTERN}</pattern>
+            <charset>UTF-8</charset>
+        </encoder>
+    </appender>
+
+    <root level="INFO">
+        <appender-ref ref="CONSOLE"/>
+    </root>
+
+    <!-- 测试环境可开启业务包 DEBUG（调试 / SQL）；生产环境禁止开启 -->
+    <springProfile name="test">
+        <logger name="com.cacch.enterprise" level="DEBUG"/>
+    </springProfile>
+</configuration>

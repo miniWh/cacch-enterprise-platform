@@ -1,0 +1,26 @@
+# 开发环境配置（本地开发：内嵌容器启动，Flyway 关闭，建库 cacch_enterprise）
+spring:
+  datasource:
+    url: jdbc:postgresql://127.0.0.1:5432/cacch_enterprise
+    username: your_username
+    password: your_password
+
+  data:
+    redis:
+      host: 127.0.0.1
+      port: 6379
+      # password: your_redis_password
+
+  # Flyway：本地 dev 关闭；仅 test 环境自动迁移（见 .trae/rules/project_rules.md 第 6.2 节）
+  flyway:
+    enabled: false
+    locations: classpath:db/migration
+
+# 应用自身配置
+cacch:
+  security:
+    jwt-secret: your_jwt_secret_at_least_32_bytes   # 生产环境必须通过配置中心/外置配置注入，禁止硬编码真实密钥
+    access-token-expire: 7200        # 访问令牌有效期（秒）
+    refresh-token-expire: 604800     # 刷新令牌有效期（秒）
+  cors:
+    allowed-origins: http://127.0.0.1:5173

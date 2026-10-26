@@ -1,0 +1,25 @@
+# 测试环境配置（test/prod 共用同一数据库；test 是唯一允许 Flyway 自动迁移的环境）
+spring:
+  datasource:
+    url: jdbc:postgresql://127.0.0.1:5432/cacch_enterprise
+    username: your_username
+    password: your_password
+
+  data:
+    redis:
+      host: 127.0.0.1
+      port: 6379
+      # password: your_redis_password
+
+  # Flyway：test 环境启动时执行 Schema 迁移
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+
+cacch:
+  security:
+    jwt-secret: your_jwt_secret_at_least_32_bytes   # 测试环境密钥，禁止用于生产
+    access-token-expire: 7200
+    refresh-token-expire: 604800
+  cors:
+    allowed-origins: http://127.0.0.1:5173

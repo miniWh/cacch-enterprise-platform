@@ -1,11 +1,12 @@
 <template>
-  <div class="app-entry">Cacch 企业管理平台</div>
+  <BasicLayout>
+    <Workbench />
+  </BasicLayout>
 </template>
 
 <script setup lang="ts">
-// 应用根组件：后台布局（src/layout）与路由出口后续接入
-</script>
+import BasicLayout from './layout/BasicLayout.vue'
+import Workbench from './views/workbench/Workbench.vue'
 
-<style>
-/* 全局基础样式：主题变量与 TailwindCSS 引入后续接入 */
-</style>
+// 应用根组件：当前直挂工作台静态演示页，路由（src/router）接入后替换为路由出口
+</script>

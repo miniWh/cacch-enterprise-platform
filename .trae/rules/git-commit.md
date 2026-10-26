@@ -1,0 +1,67 @@
+---
+description: Git 提交说明规范（Conventional Commits）
+alwaysApply: true
+---
+
+# Git Commit 规范
+
+创建 commit 时遵循 Conventional Commits。完整规范见 `.trae/rules/project_rules.md` 第十七节。
+
+## 格式
+
+```
+<type>(<scope>): <subject>
+
+<body>
+
+<footer>
+```
+
+小改动可只写首行。
+
+## type（必填，英文）
+
+`feat` `fix` `docs` `style` `refactor` `perf` `test` `build` `ci` `chore` `revert`
+
+## scope（建议，小写）
+
+业务域：`system` `auth` `org` `notice` `log`  
+模块：`common` `dao` `service` `manager` `integration` `async` `web`  
+基础设施：`db` `config` `deps`
+
+## subject（必填，中文）
+
+- 祈使语气，≤ 50 字，句末不加句号
+- 说明业务意图，禁止「开发」「修改」「日志修改」
+
+## body / footer（按需）
+
+- body：为什么改、影响范围、Flyway 版本
+- footer：`Closes #123`、`BREAKING CHANGE:`、`Co-authored-by:`
+
+## 示例
+
+```
+feat(auth): 支持企业微信扫码登录
+fix(system): 修复重置密码后未清理登录态
+docs: 补充 Git 提交说明规范
+```
+
+## 禁止
+
+- 无 type 的模糊说明
+- 一次 commit 混入多个不相关变更
+- 提交 target/、.class 等构建产物
+
+## 代码修改后的提交建议（强制）
+
+凡本次任务涉及**文件或代码修改**，任务完成后必须：
+
+1. 执行 `git status` 与 `git diff`（必要时 `git diff --staged`）检查当前未提交的变更内容
+2. 基于实际变更，按本规范生成并输出**建议的 commit message**（含 type/scope/subject，必要时含 body）
+
+约束：
+
+- 未提交变更中存在与本次任务无关的内容时，提交建议仅覆盖本次任务改动的文件，并提示其余未提交项
+- **仅输出提交建议，不自动执行 `git commit`**；用户明确要求提交时才执行
+- 无法获取 Git 状态时（如目录非 Git 仓库），说明原因并跳过此步骤

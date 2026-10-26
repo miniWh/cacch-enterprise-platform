@@ -1,0 +1,35 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* 全局基础样式：主色为靛紫系（Tailwind indigo），后续接入 Element Plus 时通过覆盖其 CSS 变量统一主题 */
+html,
+body,
+#app {
+  height: 100%;
+}
+
+body {
+  font-family:
+    'PingFang SC',
+    'Microsoft YaHei',
+    'Helvetica Neue',
+    Arial,
+    sans-serif;
+  background-color: #f6f7f9;
+  color: #1f2937;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* 细滚动条 */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-thumb {
+  border-radius: 9999px;
+  background-color: #d1d5db;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}

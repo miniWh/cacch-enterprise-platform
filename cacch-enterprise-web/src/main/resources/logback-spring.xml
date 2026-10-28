@@ -5,6 +5,12 @@
     <property name="LOG_PATTERN"
               value="%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] [traceId:%X{traceId:-}] %-5level %logger{50} [%file:%line] - %msg%n"/>
 
+    <!-- 日志文件路径与滚动策略参数：必须显式定义（logback 1.6 起未定义变量为致命错误） -->
+    <property name="LOG_FILE" value="./logs/cacch-enterprise"/>
+    <property name="MAX_HISTORY" value="30"/>
+    <property name="MAX_FILE_SIZE" value="100MB"/>
+    <property name="TOTAL_SIZE_CAP" value="10GB"/>
+
     <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>
             <pattern>${LOG_PATTERN}</pattern>

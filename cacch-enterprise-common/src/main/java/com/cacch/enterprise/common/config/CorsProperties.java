@@ -2,6 +2,8 @@ package com.cacch.enterprise.common.config;
 
 import java.util.List;
 
+import org.springframework.boot.context.properties.ConfigurationProperties;
+
 /**
  * 跨域配置属性（cacch.cors.*）
  *
@@ -10,6 +12,7 @@ import java.util.List;
  * @param allowedOrigins 允许的跨域来源列表（前端开发/部署地址），为空时全部拒绝
  * @author hongfu_zhou@cacch.com
  */
+@ConfigurationProperties(prefix = "cacch.cors")
 public record CorsProperties(List<String> allowedOrigins) {
 
     /**

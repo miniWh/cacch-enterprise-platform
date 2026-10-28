@@ -1,5 +1,7 @@
 package com.cacch.enterprise.common.config.auth;
 
+import org.springframework.boot.context.properties.ConfigurationProperties;
+
 import com.cacch.enterprise.common.enums.auth.LoginChannelPolicyEnum;
 
 /**
@@ -13,6 +15,7 @@ import com.cacch.enterprise.common.enums.auth.LoginChannelPolicyEnum;
  * @param loginChannelPolicy 多端登录策略：KICK_OUT 互踢（默认）/ COEXIST 共存（预留）
  * @author hongfu_zhou@cacch.com
  */
+@ConfigurationProperties(prefix = "cacch.security")
 public record SecurityProperties(String jwtSecret, Long accessTokenExpire, Long refreshTokenExpire,
                                  LoginChannelPolicyEnum loginChannelPolicy) {
 

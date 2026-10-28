@@ -14,4 +14,30 @@
     <packaging>jar</packaging>
     <name>cacch-enterprise-service</name>
     <description>单聚合业务模块：单一业务域内的核心业务逻辑，不做跨域流程编排</description>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.cacch</groupId>
+            <artifactId>cacch-enterprise-dao</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.cacch</groupId>
+            <artifactId>cacch-enterprise-common</artifactId>
+        </dependency>
+        <!-- Redis 读写（验证码、权限缓存回源等） -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-redis</artifactId>
+        </dependency>
+        <!-- 验证码生成等通用工具 -->
+        <dependency>
+            <groupId>cn.hutool</groupId>
+            <artifactId>hutool-all</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <scope>provided</scope>
+        </dependency>
+    </dependencies>
 </project>

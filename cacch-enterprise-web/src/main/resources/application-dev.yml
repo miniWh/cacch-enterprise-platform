@@ -20,7 +20,8 @@ spring:
 cacch:
   security:
     jwt-secret: your_jwt_secret_at_least_32_bytes   # 生产环境必须通过配置中心/外置配置注入，禁止硬编码真实密钥
-    access-token-expire: 7200        # 访问令牌有效期（秒）
-    refresh-token-expire: 604800     # 刷新令牌有效期（秒）
+    access-token-expire: 43200        # 访问令牌有效期（秒），12 小时
+    refresh-token-expire: 43200       # 刷新令牌有效期（秒），12 小时（互踢策略下与访问令牌一致）
+    login-channel-policy: KICK_OUT    # 多端登录策略：互踢
   cors:
     allowed-origins: http://127.0.0.1:5173

@@ -14,4 +14,34 @@
     <packaging>jar</packaging>
     <name>cacch-enterprise-manager</name>
     <description>业务编排模块：跨聚合流程组装、全局事务控制、多服务聚合查询</description>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.cacch</groupId>
+            <artifactId>cacch-enterprise-service</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.cacch</groupId>
+            <artifactId>cacch-enterprise-integration</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.cacch</groupId>
+            <artifactId>cacch-enterprise-common</artifactId>
+        </dependency>
+        <!-- 登录态/令牌/权限缓存 Redis 读写 -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-redis</artifactId>
+        </dependency>
+        <!-- LoginUser/权限缓存 JSON 序列化 -->
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <scope>provided</scope>
+        </dependency>
+    </dependencies>
 </project>

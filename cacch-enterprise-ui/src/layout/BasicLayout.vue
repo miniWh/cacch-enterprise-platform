@@ -4,7 +4,7 @@
     <div class="flex min-w-0 flex-1 flex-col">
       <AppHeader />
       <main class="min-h-0 flex-1 overflow-y-auto">
-        <slot />
+        <router-view />
       </main>
     </div>
   </div>
@@ -14,5 +14,5 @@
 import AppSidebar from './components/AppSidebar.vue'
 import AppHeader from './components/AppHeader.vue'
 
-// 后台基础布局：左侧导航 + 顶栏 + 内容区（路由接入后可替换 slot 为 router-view）
+// 后台基础布局：左侧动态菜单导航 + 顶栏 + 路由内容区
 </script>

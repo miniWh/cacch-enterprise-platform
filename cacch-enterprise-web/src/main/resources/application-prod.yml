@@ -19,7 +19,8 @@ spring:
 cacch:
   security:
     jwt-secret: CHANGE_ME_VIA_EXTERNAL_CONFIG       # 生产密钥必须通过 /opt/cacch/config/ 外置配置或配置中心覆盖
-    access-token-expire: 7200
-    refresh-token-expire: 604800
+    access-token-expire: 43200
+    refresh-token-expire: 43200
+    login-channel-policy: KICK_OUT
   cors:
     allowed-origins: https://your-prod-domain

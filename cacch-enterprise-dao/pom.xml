@@ -14,4 +14,30 @@
     <packaging>jar</packaging>
     <name>cacch-enterprise-dao</name>
     <description>数据持久模块：数据库实体 DO、Mapper 接口、MyBatis-Plus 配置、数据权限拦截器</description>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.cacch</groupId>
+            <artifactId>cacch-enterprise-common</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.baomidou</groupId>
+            <artifactId>mybatis-plus-spring-boot4-starter</artifactId>
+        </dependency>
+        <!-- 分页/数据权限拦截器（jsqlparser 相关插件） -->
+        <dependency>
+            <groupId>com.baomidou</groupId>
+            <artifactId>mybatis-plus-jsqlparser</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <scope>provided</scope>
+        </dependency>
+    </dependencies>
 </project>

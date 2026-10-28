@@ -19,7 +19,8 @@ spring:
 cacch:
   security:
     jwt-secret: your_jwt_secret_at_least_32_bytes   # 测试环境密钥，禁止用于生产
-    access-token-expire: 7200
-    refresh-token-expire: 604800
+    access-token-expire: 43200
+    refresh-token-expire: 43200
+    login-channel-policy: KICK_OUT
   cors:
     allowed-origins: http://127.0.0.1:5173

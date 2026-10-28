@@ -14,4 +14,16 @@
     <packaging>jar</packaging>
     <name>cacch-enterprise-integration</name>
     <description>第三方身份源适配模块：企业微信/钉钉/飞书客户端封装、扫码登录、组织同步适配</description>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.cacch</groupId>
+            <artifactId>cacch-enterprise-common</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <scope>provided</scope>
+        </dependency>
+    </dependencies>
 </project>

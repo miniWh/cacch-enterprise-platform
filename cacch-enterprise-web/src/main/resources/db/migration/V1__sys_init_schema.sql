@@ -1,5 +1,5 @@
 -- ============================================================
--- V1__init_schema.sql
+-- V1__sys_init_schema.sql
 -- cacch-enterprise-platform 初始 Schema（占位，随首个业务表需求填充）
 --
 -- 约束（见 .trae/rules/project_rules.md 第六节）：

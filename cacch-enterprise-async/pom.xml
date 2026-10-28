@@ -20,16 +20,17 @@
             <groupId>com.cacch</groupId>
             <artifactId>cacch-enterprise-common</artifactId>
         </dependency>
-        <!-- 登录成功事件消费时回写最近登录时间 -->
+
         <dependency>
             <groupId>com.cacch</groupId>
             <artifactId>cacch-enterprise-service</artifactId>
         </dependency>
-        <!-- Spring 事件监听与 @Async 异步基础设施 -->
+
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter</artifactId>
         </dependency>
+
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>

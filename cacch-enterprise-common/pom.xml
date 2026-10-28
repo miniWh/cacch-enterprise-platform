@@ -16,31 +16,33 @@
     <description>公共基础模块：全局常量、通用工具类、统一异常、统一返回体、通用注解、基础 DTO、分页对象、配置 POJO</description>
 
     <dependencies>
-        <!-- @ConfigurationProperties 配置绑定（仅核心包，不引入 starter） -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot</artifactId>
         </dependency>
-        <!-- BCrypt 密码哈希（PasswordAppSupport 统一封装） -->
+
         <dependency>
             <groupId>at.favre.lib</groupId>
             <artifactId>bcrypt</artifactId>
         </dependency>
-        <!-- JWT 签发与解析（JwtTokenSupport，供 manager 签发、web 过滤器解析） -->
+
         <dependency>
             <groupId>io.jsonwebtoken</groupId>
             <artifactId>jjwt-api</artifactId>
         </dependency>
+
         <dependency>
             <groupId>io.jsonwebtoken</groupId>
             <artifactId>jjwt-impl</artifactId>
             <scope>runtime</scope>
         </dependency>
+
         <dependency>
             <groupId>io.jsonwebtoken</groupId>
             <artifactId>jjwt-jackson</artifactId>
             <scope>runtime</scope>
         </dependency>
+
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>

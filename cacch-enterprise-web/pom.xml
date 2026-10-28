@@ -13,75 +13,86 @@
     <artifactId>cacch-enterprise-web</artifactId>
     <packaging>war</packaging>
     <name>cacch-enterprise-web</name>
-    <description>Web 启动模块：Controller、Spring Security/WebSocket 配置、启动类；打包 War 部署外部 Tomcat，单体模式唯一部署单元</description>
+    <description>Web 启动模块：Controller、Spring Security/WebSocket 配置、启动类；打包 War 部署外部
+        Tomcat，单体模式唯一部署单元
+    </description>
 
     <dependencies>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
-        <!-- 内嵌 Tomcat 仅本地开发使用；War 部署时由外部 Tomcat 10.1.x 提供，不打进 War -->
+
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-tomcat</artifactId>
             <scope>provided</scope>
         </dependency>
+
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-security</artifactId>
         </dependency>
+
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-validation</artifactId>
         </dependency>
-        <!-- @RequiresPermission 权限校验切面（Spring Boot 4 BOM 不再提供 starter-aop，直接依赖 aspectjweaver） -->
+
         <dependency>
             <groupId>org.aspectj</groupId>
             <artifactId>aspectjweaver</artifactId>
         </dependency>
-        <!-- JWT 过滤器读取登录态/权限缓存 -->
+
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-redis</artifactId>
         </dependency>
+
         <dependency>
             <groupId>com.cacch</groupId>
             <artifactId>cacch-enterprise-manager</artifactId>
         </dependency>
+
         <dependency>
             <groupId>com.cacch</groupId>
             <artifactId>cacch-enterprise-async</artifactId>
         </dependency>
-        <!-- JWT 签发与解析 -->
+
         <dependency>
             <groupId>io.jsonwebtoken</groupId>
             <artifactId>jjwt-api</artifactId>
         </dependency>
+
         <dependency>
             <groupId>io.jsonwebtoken</groupId>
             <artifactId>jjwt-impl</artifactId>
             <scope>runtime</scope>
         </dependency>
+
         <dependency>
             <groupId>io.jsonwebtoken</groupId>
             <artifactId>jjwt-jackson</artifactId>
             <scope>runtime</scope>
         </dependency>
-        <!-- MapStruct 对象转换 -->
+
         <dependency>
             <groupId>org.mapstruct</groupId>
             <artifactId>mapstruct</artifactId>
         </dependency>
+
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
             <scope>provided</scope>
         </dependency>
+
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
         </dependency>
+
         <dependency>
             <groupId>org.springframework.security</groupId>
             <artifactId>spring-security-test</artifactId>

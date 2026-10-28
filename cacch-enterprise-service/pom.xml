@@ -20,20 +20,22 @@
             <groupId>com.cacch</groupId>
             <artifactId>cacch-enterprise-dao</artifactId>
         </dependency>
+
         <dependency>
             <groupId>com.cacch</groupId>
             <artifactId>cacch-enterprise-common</artifactId>
         </dependency>
-        <!-- Redis 读写（验证码、权限缓存回源等） -->
+
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-redis</artifactId>
         </dependency>
-        <!-- 验证码生成等通用工具 -->
+
         <dependency>
             <groupId>cn.hutool</groupId>
             <artifactId>hutool-all</artifactId>
         </dependency>
+
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>

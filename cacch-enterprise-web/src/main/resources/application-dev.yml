@@ -1,7 +1,7 @@
-# 开发环境配置（本地开发：内嵌容器启动，Flyway 关闭，建库 cacch_enterprise）
+# 开发环境配置（本地开发：内嵌容器启动，Flyway 开启并使用独立 schema enterprise，与共享库中台业务隔离）
 spring:
   datasource:
-    url: jdbc:postgresql://10.80.86.93:5432/cdb
+    url: jdbc:postgresql://10.80.86.93:5432/cdb?currentSchema=enterprise
     username: esb
     password: esb
     driver-class-name: org.postgresql.Driver
@@ -24,10 +24,12 @@ spring:
           # 最小空闲连接数（预创建 4 个，应对突发流量）
           min-idle: 4
 
-  # Flyway：本地 dev 开启，目前仅有生产环境，因此在本地测试时启用
+  # Flyway：本地 dev 开启，独立 schema enterprise 隔离（与共享库中台业务的 public schema 迁移历史互不干扰）
   flyway:
     enabled: true
     locations: classpath:db/migration
+    schemas: enterprise
+    default-schema: enterprise
 
 # 应用自身配置
 cacch:

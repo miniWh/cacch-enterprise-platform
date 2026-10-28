@@ -86,6 +86,14 @@
             <artifactId>jackson-datatype-jsr310</artifactId>
         </dependency>
 
+        <!-- Flyway Schema 版本化迁移：dev/test 自动执行，prod 关闭。
+             Boot 4 模块化重构后自动配置拆分，须引入 spring-boot-flyway 才有 FlywayAutoConfiguration；
+             仅加 flyway-core 时 spring.flyway.enabled=true 静默无效 -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-flyway</artifactId>
+        </dependency>
+
         <dependency>
             <groupId>org.flywaydb</groupId>
             <artifactId>flyway-core</artifactId>

@@ -1,7 +1,7 @@
 # 生产环境配置（生产启动不得操作数据库结构；敏感配置建议通过 Tomcat setenv.sh 外置注入）
 spring:
   datasource:
-    url: jdbc:postgresql://10.80.86.93:5432/cdb
+    url: jdbc:postgresql://10.80.86.93:5432/cdb?currentSchema=enterprise
     username: esb
     password: esb
     driver-class-name: org.postgresql.Driver

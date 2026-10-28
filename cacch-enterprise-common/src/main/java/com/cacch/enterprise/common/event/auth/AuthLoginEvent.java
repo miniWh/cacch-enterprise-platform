@@ -23,24 +23,38 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class AuthLoginEvent implements Serializable {
 
-    /** 是否登录成功 */
+    /**
+     * 是否登录成功
+     */
     private boolean success;
 
-    /** 登录渠道 */
+    /**
+     * 登录渠道
+     */
     private AuthChannelEnum channel;
 
-    /** 用户 ID（失败且账号不存在时为 null） */
+    /**
+     * 用户 ID（失败且账号不存在时为 null）
+     */
     private Long userId;
 
-    /** 登录账号（工号或手机号原文，用于失败留痕） */
+    /**
+     * 登录账号（工号或手机号原文，用于失败留痕）
+     */
     private String account;
 
-    /** 登录来源 IP */
+    /**
+     * 登录来源 IP
+     */
     private String loginIp;
 
-    /** 失败原因描述（成功时为 null），不包含敏感信息 */
+    /**
+     * 失败原因描述（成功时为 null），不包含敏感信息
+     */
     private String failReason;
 
-    /** 事件发生时间 */
+    /**
+     * 事件发生时间
+     */
     private LocalDateTime eventTime;
 }

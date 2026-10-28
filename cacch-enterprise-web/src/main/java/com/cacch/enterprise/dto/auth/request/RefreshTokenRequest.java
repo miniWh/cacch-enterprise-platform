@@ -13,7 +13,9 @@ import java.io.Serializable;
 @Data
 public class RefreshTokenRequest implements Serializable {
 
-    /** 刷新令牌（登录/上次刷新时签发） */
+    /**
+     * 刷新令牌（登录/上次刷新时签发）
+     */
     @NotBlank(message = "刷新令牌不能为空")
     private String refreshToken;
 }

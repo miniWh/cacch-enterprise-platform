@@ -27,10 +27,14 @@ import java.util.UUID;
 @Component
 public class JwtTokenSupport {
 
-    /** 令牌类型：访问令牌 */
+    /**
+     * 令牌类型：访问令牌
+     */
     public static final String TYPE_ACCESS = "access";
 
-    /** 令牌类型：刷新令牌 */
+    /**
+     * 令牌类型：刷新令牌
+     */
     public static final String TYPE_REFRESH = "refresh";
 
     private static final long CLOCK_SKEW_SECONDS = 60;
@@ -47,7 +51,7 @@ public class JwtTokenSupport {
      */
     public JwtTokenSupport(SecurityProperties securityProperties) {
         this.securityProperties = securityProperties;
-        byte[] secretBytes = securityProperties.getJwtSecret().getBytes(StandardCharsets.UTF_8);
+        byte[] secretBytes = securityProperties.jwtSecret().getBytes(StandardCharsets.UTF_8);
         if (secretBytes.length < 32) {
             throw new IllegalStateException("JWT 密钥长度不足 32 字节，请检查 cacch.security.jwt-secret 配置");
         }
@@ -64,7 +68,7 @@ public class JwtTokenSupport {
      */
     public String createAccessToken(Long userId, String username, String jti) {
         return createToken(userId, username, jti, TYPE_ACCESS,
-                Duration.ofSeconds(securityProperties.getAccessTokenExpire()));
+                Duration.ofSeconds(securityProperties.accessTokenExpire()));
     }
 
     /**
@@ -77,7 +81,7 @@ public class JwtTokenSupport {
      */
     public String createRefreshToken(Long userId, String username, String jti) {
         return createToken(userId, username, jti, TYPE_REFRESH,
-                Duration.ofSeconds(securityProperties.getRefreshTokenExpire()));
+                Duration.ofSeconds(securityProperties.refreshTokenExpire()));
     }
 
     /**
@@ -85,7 +89,6 @@ public class JwtTokenSupport {
      *
      * @param token JWT 字符串
      * @return 解析结果（userId、username、type、jti）
-     * @throws BizException 令牌为空、签名不合法或已过期时抛出（40104/40105）
      */
     public ParsedToken parse(String token) {
         if (token == null || token.isBlank()) {

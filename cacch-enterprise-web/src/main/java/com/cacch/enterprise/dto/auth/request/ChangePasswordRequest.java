@@ -15,11 +15,15 @@ import java.io.Serializable;
 @Data
 public class ChangePasswordRequest implements Serializable {
 
-    /** 原密码明文 */
+    /**
+     * 原密码明文
+     */
     @NotBlank(message = "原密码不能为空")
     private String oldPassword;
 
-    /** 新密码明文：8~64 位，须同时包含字母与数字 */
+    /**
+     * 新密码明文：8~64 位，须同时包含字母与数字
+     */
     @NotBlank(message = "新密码不能为空")
     @Pattern(regexp = AuthCommonConstants.PASSWORD_REGEX, message = "新密码须为 8~64 位且同时包含字母与数字")
     private String newPassword;

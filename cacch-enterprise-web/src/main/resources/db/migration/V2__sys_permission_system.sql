@@ -27,7 +27,7 @@ CREATE TABLE sys_dept (
     deleted     SMALLINT     NOT NULL DEFAULT 0
 );
 
-COMMENT ON TABLE  sys_dept IS '部门表（树形结构，ancestors 为祖先链冗余字段）';
+COMMENT ON TABLE  sys_dept IS '部门表';
 COMMENT ON COLUMN sys_dept.ancestors   IS '祖先链：从根(0)到父部门 ID 逗号分隔，不含自身，根部门为 0';
 COMMENT ON COLUMN sys_dept.status      IS '状态：0 正常 / 1 停用（停用后不可向该部门及下级新增用户）';
 COMMENT ON COLUMN sys_dept.source      IS '数据来源：LOCAL 本地维护 / IHR 人事系统同步（预留）';
@@ -57,14 +57,14 @@ CREATE TABLE sys_user (
     deleted         SMALLINT     NOT NULL DEFAULT 0
 );
 
-COMMENT ON TABLE  sys_user IS '用户表（工号与手机号均为登录账号）';
-COMMENT ON COLUMN sys_user.username        IS '工号，登录账号之一，全局唯一（逻辑删除后可复用），创建后不可修改';
-COMMENT ON COLUMN sys_user.phone           IS '手机号，登录账号之一，全局唯一（逻辑删除后可复用）';
-COMMENT ON COLUMN sys_user.password        IS '登录密码 BCrypt 密文（cost 10）';
+COMMENT ON TABLE  sys_user IS '用户表';
+COMMENT ON COLUMN sys_user.username        IS '工号';
+COMMENT ON COLUMN sys_user.phone           IS '手机号';
+COMMENT ON COLUMN sys_user.password        IS '登录密码';
 COMMENT ON COLUMN sys_user.status          IS '账号状态：0 启用 / 1 停用';
 COMMENT ON COLUMN sys_user.source          IS '数据来源：LOCAL 本地创建 / IHR 人事系统同步（预留）';
 COMMENT ON COLUMN sys_user.external_id     IS 'iHR 人员唯一编号（预留）';
-COMMENT ON COLUMN sys_user.wecom_userid    IS '企微 UserId（预留，扫码/免登绑定依据）';
+COMMENT ON COLUMN sys_user.wecom_userid    IS '企微 UserId';
 COMMENT ON COLUMN sys_user.last_login_time IS '最近登录时间（登录事件异步回写）';
 
 CREATE UNIQUE INDEX uk_sys_user_username ON sys_user (username) WHERE deleted = 0;
@@ -88,10 +88,10 @@ CREATE TABLE sys_role (
     deleted    SMALLINT     NOT NULL DEFAULT 0
 );
 
-COMMENT ON TABLE  sys_role IS '角色表（功能权限集合 + 数据权限档位）';
-COMMENT ON COLUMN sys_role.role_code  IS '角色编码，全局唯一（逻辑删除后可复用），创建后不可修改';
+COMMENT ON TABLE  sys_role IS '角色表';
+COMMENT ON COLUMN sys_role.role_code  IS '角色编码';
 COMMENT ON COLUMN sys_role.data_scope IS '数据权限档位：1 全部 / 2 本部门 / 3 本部门及下级 / 4 仅本人';
-COMMENT ON COLUMN sys_role.built_in   IS '是否内置角色：0 否 / 1 是（编码名称不可改、不可删除）';
+COMMENT ON COLUMN sys_role.built_in   IS '是否内置角色：0 否 / 1 是';
 COMMENT ON COLUMN sys_role.status     IS '状态：0 正常 / 1 停用';
 
 CREATE UNIQUE INDEX uk_sys_role_code ON sys_role (role_code) WHERE deleted = 0;
@@ -117,7 +117,7 @@ CREATE TABLE sys_menu (
     deleted   SMALLINT     NOT NULL DEFAULT 0
 );
 
-COMMENT ON TABLE  sys_menu IS '菜单/按钮表（目录 D → 菜单 M → 按钮 B 三级树形）';
+COMMENT ON TABLE  sys_menu IS '菜单/按钮表';
 COMMENT ON COLUMN sys_menu.menu_type IS '节点类型：D 目录 / M 菜单 / B 按钮';
 COMMENT ON COLUMN sys_menu.path      IS '前端路由地址（目录/菜单填写）';
 COMMENT ON COLUMN sys_menu.component IS '前端组件路径（菜单填写，相对 src/views 的组件标识）';
@@ -140,7 +140,7 @@ CREATE TABLE sys_user_role (
     deleted    SMALLINT NOT NULL DEFAULT 0
 );
 
-COMMENT ON TABLE sys_user_role IS '用户-角色关联表（重新分配时旧关联行逻辑删除，保留授权历史）';
+COMMENT ON TABLE sys_user_role IS '用户-角色关联表';
 
 CREATE UNIQUE INDEX uk_sys_user_role ON sys_user_role (user_id, role_id) WHERE deleted = 0;
 CREATE INDEX idx_sys_user_role_user ON sys_user_role (user_id);
@@ -157,7 +157,7 @@ CREATE TABLE sys_role_menu (
     deleted    SMALLINT NOT NULL DEFAULT 0
 );
 
-COMMENT ON TABLE sys_role_menu IS '角色-菜单授权关联表（重新授权时旧关联行逻辑删除，保留授权历史）';
+COMMENT ON TABLE sys_role_menu IS '角色-菜单授权关联表';
 
 CREATE UNIQUE INDEX uk_sys_role_menu ON sys_role_menu (role_id, menu_id) WHERE deleted = 0;
 CREATE INDEX idx_sys_role_menu_role ON sys_role_menu (role_id);

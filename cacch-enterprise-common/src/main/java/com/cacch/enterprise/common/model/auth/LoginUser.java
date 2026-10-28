@@ -24,33 +24,53 @@ import java.util.Set;
 @AllArgsConstructor
 public class LoginUser implements Serializable {
 
-    /** 用户 ID，对应 sys_user.id */
+    /**
+     * 用户 ID，对应 sys_user.id
+     */
     private Long userId;
 
-    /** 工号（登录账号） */
+    /**
+     * 工号（登录账号）
+     */
     private String username;
 
-    /** 姓名 */
+    /**
+     * 姓名
+     */
     private String realName;
 
-    /** 归属部门 ID，对应 sys_dept.id，顶级管理员可为 null */
+    /**
+     * 归属部门 ID，对应 sys_dept.id，顶级管理员可为 null
+     */
     private Long deptId;
 
-    /** 归属部门祖先链（含根 0、不含自身，逗号分隔），供「本部门及下级」数据权限查询 */
+    /**
+     * 归属部门祖先链（含根 0、不含自身，逗号分隔），供「本部门及下级」数据权限查询
+     */
     private String deptAncestors;
 
-    /** 持有的启用状态角色编码集合 */
+    /**
+     * 持有的启用状态角色编码集合
+     */
     private Set<String> roleCodes;
 
-    /** 持有角色的数据权限档位集合（多角色并集） */
+    /**
+     * 持有角色的数据权限档位集合（多角色并集）
+     */
     private Set<DataScopeEnum> dataScopes;
 
-    /** 当前会话访问令牌 jti（互踢/强制下线比对依据） */
+    /**
+     * 当前会话访问令牌 jti（互踢/强制下线比对依据）
+     */
     private String jti;
 
-    /** 登录时间 */
+    /**
+     * 登录时间
+     */
     private LocalDateTime loginTime;
 
-    /** 登录来源 IP */
+    /**
+     * 登录来源 IP
+     */
     private String loginIp;
 }

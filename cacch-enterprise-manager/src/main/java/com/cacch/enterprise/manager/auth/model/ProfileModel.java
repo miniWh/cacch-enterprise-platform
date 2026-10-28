@@ -18,9 +18,13 @@ import java.io.Serializable;
 @AllArgsConstructor
 public class ProfileModel implements Serializable {
 
-    /** 用户实体（不含密码） */
+    /**
+     * 用户实体（不含密码）
+     */
     private SysUserDO user;
 
-    /** 用户权限模型（菜单扁平列表 + 权限标识集合） */
+    /**
+     * 用户权限模型（菜单扁平列表 + 权限标识集合）
+     */
     private UserPermissionModel permission;
 }

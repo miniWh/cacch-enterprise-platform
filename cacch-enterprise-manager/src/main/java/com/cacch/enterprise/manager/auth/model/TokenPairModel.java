@@ -16,12 +16,18 @@ import java.io.Serializable;
 @AllArgsConstructor
 public class TokenPairModel implements Serializable {
 
-    /** 访问令牌 */
+    /**
+     * 访问令牌
+     */
     private String accessToken;
 
-    /** 刷新令牌 */
+    /**
+     * 刷新令牌
+     */
     private String refreshToken;
 
-    /** 访问令牌有效期（秒），供前端计算静默刷新时机 */
+    /**
+     * 访问令牌有效期（秒），供前端计算静默刷新时机
+     */
     private long expiresInSeconds;
 }

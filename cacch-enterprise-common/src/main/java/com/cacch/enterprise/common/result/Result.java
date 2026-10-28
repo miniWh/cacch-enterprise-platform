@@ -18,13 +18,19 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class Result<T> {
 
-    /** 业务返回码，0 表示成功，其余见 ResultCode */
+    /**
+     * 业务返回码，0 表示成功，其余见 ResultCode
+     */
     private int code;
 
-    /** 提示消息 */
+    /**
+     * 提示消息
+     */
     private String message;
 
-    /** 业务数据，无数据时为 null */
+    /**
+     * 业务数据，无数据时为 null
+     */
     private T data;
 
     /**
@@ -74,7 +80,7 @@ public class Result<T> {
     /**
      * 由业务异常构建失败返回体
      *
-     * @param e 业务异常，携带返回码与提示消息
+     * @param e   业务异常，携带返回码与提示消息
      * @param <T> 业务数据类型
      * @return 与异常信息一致的失败返回体
      */

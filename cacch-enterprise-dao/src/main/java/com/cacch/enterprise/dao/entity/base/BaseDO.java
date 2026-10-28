@@ -22,27 +22,39 @@ import java.time.LocalDateTime;
 @Data
 public abstract class BaseDO implements Serializable {
 
-    /** 主键，雪花算法生成 */
+    /**
+     * 主键，雪花算法生成
+     */
     @TableId(type = IdType.ASSIGN_ID)
     private Long id;
 
-    /** 创建时间 */
+    /**
+     * 创建时间
+     */
     @TableField(fill = FieldFill.INSERT)
     private LocalDateTime createTime;
 
-    /** 更新时间 */
+    /**
+     * 更新时间
+     */
     @TableField(fill = FieldFill.INSERT_UPDATE)
     private LocalDateTime updateTime;
 
-    /** 创建人（用户 ID） */
+    /**
+     * 创建人（用户 ID）
+     */
     @TableField(fill = FieldFill.INSERT)
     private Long createBy;
 
-    /** 更新人（用户 ID） */
+    /**
+     * 更新人（用户 ID）
+     */
     @TableField(fill = FieldFill.INSERT_UPDATE)
     private Long updateBy;
 
-    /** 逻辑删除标记：0 正常 / 1 删除 */
+    /**
+     * 逻辑删除标记：0 正常 / 1 删除
+     */
     @TableLogic
     private Integer deleted;
 }

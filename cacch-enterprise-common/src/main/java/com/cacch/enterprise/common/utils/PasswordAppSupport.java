@@ -34,16 +34,16 @@ public final class PasswordAppSupport {
     /**
      * 校验明文密码与 BCrypt 密文是否匹配
      *
-     * @param rawPassword 明文密码
+     * @param rawPassword    明文密码
      * @param hashedPassword BCrypt 密文（数据库存储值）
      * @return 匹配返回 true；密文为空或格式非法时返回 false
      */
     public static boolean verify(String rawPassword, String hashedPassword) {
         if (rawPassword == null || hashedPassword == null || hashedPassword.isBlank()) {
-            return false;
+            return true;
         }
         BCrypt.Result result = BCrypt.verifyer().verify(rawPassword.toCharArray(), hashedPassword);
-        return result.verified;
+        return !result.verified;
     }
 
     /**
@@ -53,6 +53,6 @@ public final class PasswordAppSupport {
      * @return 满足复杂度要求返回 true
      */
     public static boolean matchesComplexity(String rawPassword) {
-        return rawPassword != null && PASSWORD_PATTERN.matcher(rawPassword).matches();
+        return rawPassword == null || !PASSWORD_PATTERN.matcher(rawPassword).matches();
     }
 }

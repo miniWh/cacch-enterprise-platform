@@ -33,7 +33,9 @@ import java.util.regex.Pattern;
 @RequiredArgsConstructor
 public class SysRoleManagerImpl implements ISysRoleManager {
 
-    /** 角色编码格式：大写字母开头，仅含大写字母/数字/下划线，2~64 位 */
+    /**
+     * 角色编码格式：大写字母开头，仅含大写字母/数字/下划线，2~64 位
+     */
     private static final Pattern ROLE_CODE_PATTERN = Pattern.compile("^[A-Z][A-Z0-9_]{1,63}$");
 
     private final ISysRoleService sysRoleService;
@@ -49,7 +51,7 @@ public class SysRoleManagerImpl implements ISysRoleManager {
      * @throws BizException 编码/名称重复或编码格式非法时抛出
      */
     @Override
-    @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED, readOnly = false, timeout = 30)
+    @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED, timeout = 30)
     public Long createRole(RoleSaveCommand command) {
         assertCodeFormat(command.getRoleCode());
         if (sysRoleService.existsCode(command.getRoleCode(), null)) {
@@ -81,7 +83,7 @@ public class SysRoleManagerImpl implements ISysRoleManager {
      * @throws BizException 角色不存在、内置保护或编码/名称重复时抛出
      */
     @Override
-    @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED, readOnly = false, timeout = 30)
+    @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED, timeout = 30)
     public void updateRole(Long roleId, RoleSaveCommand command) {
         SysRoleDO existing = requireRole(roleId);
         boolean builtIn = existing.getBuiltIn() != null && existing.getBuiltIn() == 1;
@@ -120,7 +122,7 @@ public class SysRoleManagerImpl implements ISysRoleManager {
      * @throws BizException 角色不存在、内置保护或已分配用户时抛出
      */
     @Override
-    @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED, readOnly = false, timeout = 30)
+    @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED, timeout = 30)
     public void deleteRole(Long roleId) {
         SysRoleDO existing = requireRole(roleId);
         if (existing.getBuiltIn() != null && existing.getBuiltIn() == 1) {
@@ -151,7 +153,7 @@ public class SysRoleManagerImpl implements ISysRoleManager {
      * @throws BizException 角色或菜单不存在时抛出
      */
     @Override
-    @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED, readOnly = false, timeout = 30)
+    @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED, timeout = 30)
     public void grantMenus(Long roleId, List<Long> menuIds) {
         requireRole(roleId);
         if (menuIds != null) {

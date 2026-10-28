@@ -19,24 +19,38 @@ import java.util.List;
 @AllArgsConstructor
 public class CreateUserCommand implements Serializable {
 
-    /** 工号（登录账号，创建后不可修改） */
+    /**
+     * 工号（登录账号，创建后不可修改）
+     */
     private String username;
 
-    /** 明文密码，须满足复杂度要求，仅用于本次哈希，禁止落日志 */
+    /**
+     * 明文密码，须满足复杂度要求，仅用于本次哈希，禁止落日志
+     */
     private String password;
 
-    /** 姓名 */
+    /**
+     * 姓名
+     */
     private String realName;
 
-    /** 归属部门 ID */
+    /**
+     * 归属部门 ID
+     */
     private Long deptId;
 
-    /** 手机号（登录账号） */
+    /**
+     * 手机号（登录账号）
+     */
     private String phone;
 
-    /** 邮箱，可选 */
+    /**
+     * 邮箱，可选
+     */
     private String email;
 
-    /** 初始角色 ID 列表，可空（表示不分配角色） */
+    /**
+     * 初始角色 ID 列表，可空（表示不分配角色）
+     */
     private List<Long> roleIds;
 }

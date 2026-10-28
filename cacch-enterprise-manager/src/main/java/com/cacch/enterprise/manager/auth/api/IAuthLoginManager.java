@@ -1,5 +1,6 @@
 package com.cacch.enterprise.manager.auth.api;
 
+import com.cacch.enterprise.common.exception.BizException;
 import com.cacch.enterprise.common.model.auth.LoginUser;
 import com.cacch.enterprise.manager.auth.model.ProfileModel;
 import com.cacch.enterprise.manager.auth.model.TokenPairModel;

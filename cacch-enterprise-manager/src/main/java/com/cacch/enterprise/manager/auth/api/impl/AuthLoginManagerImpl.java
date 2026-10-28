@@ -36,6 +36,7 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -170,11 +171,11 @@ public class AuthLoginManagerImpl implements IAuthLoginManager {
             log.info("【AuthLogin】修改密码终止：用户不存在，userId={}", userId);
             throw new BizException(ResultCode.AUTH_NOT_LOGIN);
         }
-        if (!PasswordAppSupport.verify(oldPassword, user.getPassword())) {
+        if (PasswordAppSupport.verify(oldPassword, user.getPassword())) {
             log.info("【AuthLogin】修改密码终止：原密码错误，userId={}", userId);
             throw new BizException(ResultCode.AUTH_OLD_PASSWORD_INVALID);
         }
-        if (!PasswordAppSupport.matchesComplexity(newPassword)) {
+        if (PasswordAppSupport.matchesComplexity(newPassword)) {
             log.info("【AuthLogin】修改密码终止：新密码不满足复杂度，userId={}", userId);
             throw new BizException(ResultCode.PARAM_INVALID, "新密码须为 8~64 位且同时包含字母与数字");
         }
@@ -260,9 +261,9 @@ public class AuthLoginManagerImpl implements IAuthLoginManager {
         Set<DataScopeEnum> scopes = roleCodes.contains(SystemCommonConstants.ROLE_SUPER_ADMIN)
                 ? Set.of(DataScopeEnum.ALL)
                 : roles.stream()
-                        .map(r -> DataScopeEnum.of(r.getDataScope()))
-                        .filter(s -> s != null)
-                        .collect(Collectors.toSet());
+                .map(r -> DataScopeEnum.of(r.getDataScope()))
+                .filter(Objects::nonNull)
+                .collect(Collectors.toSet());
         if (scopes.isEmpty()) {
             scopes = Set.of(DataScopeEnum.SELF);
         }
@@ -362,9 +363,9 @@ public class AuthLoginManagerImpl implements IAuthLoginManager {
     /**
      * 发布登录事件（成功/失败统一），事件异步消费
      *
-     * @param success   是否成功
-     * @param command   登录命令
-     * @param userId    用户 ID（失败且账号不存在时为 null）
+     * @param success    是否成功
+     * @param command    登录命令
+     * @param userId     用户 ID（失败且账号不存在时为 null）
      * @param failReason 失败原因（成功时为 null）
      */
     private void publishLoginEvent(boolean success, AuthLoginCommand command, Long userId, String failReason) {
@@ -385,7 +386,7 @@ public class AuthLoginManagerImpl implements IAuthLoginManager {
      * @return 有效期
      */
     private long getSecurityExpireSeconds() {
-        return jwtTokenSupport.getSecurityProperties().getAccessTokenExpire();
+        return jwtTokenSupport.getSecurityProperties().accessTokenExpire();
     }
 
     /**
@@ -394,6 +395,6 @@ public class AuthLoginManagerImpl implements IAuthLoginManager {
      * @return 有效期
      */
     private long getRefreshExpireSeconds() {
-        return jwtTokenSupport.getSecurityProperties().getRefreshTokenExpire();
+        return jwtTokenSupport.getSecurityProperties().refreshTokenExpire();
     }
 }

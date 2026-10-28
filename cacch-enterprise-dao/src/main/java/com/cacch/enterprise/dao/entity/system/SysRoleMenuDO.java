@@ -17,9 +17,13 @@ import lombok.EqualsAndHashCode;
 @TableName("sys_role_menu")
 public class SysRoleMenuDO extends BaseDO {
 
-    /** 角色 ID，对应 sys_role.id */
+    /**
+     * 角色 ID，对应 sys_role.id
+     */
     private Long roleId;
 
-    /** 菜单/按钮节点 ID，对应 sys_menu.id */
+    /**
+     * 菜单/按钮节点 ID，对应 sys_menu.id
+     */
     private Long menuId;
 }

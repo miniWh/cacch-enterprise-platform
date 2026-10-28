@@ -14,25 +14,39 @@ public final class AuthCommonConstants {
     private AuthCommonConstants() {
     }
 
-    /** 手机号格式（登录时按输入格式自动识别账号类型） */
+    /**
+     * 手机号格式（登录时按输入格式自动识别账号类型）
+     */
     public static final String PHONE_REGEX = "^1[3-9]\\d{9}$";
 
-    /** 密码复杂度：长度 8~64 位，须同时包含字母与数字 */
+    /**
+     * 密码复杂度：长度 8~64 位，须同时包含字母与数字
+     */
     public static final String PASSWORD_REGEX = "^(?=.*[A-Za-z])(?=.*\\d).{8,64}$";
 
-    /** 图形验证码有效期（秒），一次性使用，校验后（无论对错）即失效 */
+    /**
+     * 图形验证码有效期（秒），一次性使用，校验后（无论对错）即失效
+     */
     public static final int CAPTCHA_EXPIRE_SECONDS = 300;
 
-    /** 登录接口 IP 限流：窗口期内最大请求数 */
+    /**
+     * 登录接口 IP 限流：窗口期内最大请求数
+     */
     public static final int LOGIN_RATE_LIMIT_COUNT = 10;
 
-    /** 验证码接口 IP 限流：窗口期内最大请求数 */
+    /**
+     * 验证码接口 IP 限流：窗口期内最大请求数
+     */
     public static final int CAPTCHA_RATE_LIMIT_COUNT = 30;
 
-    /** IP 限流窗口长度（秒） */
+    /**
+     * IP 限流窗口长度（秒）
+     */
     public static final int RATE_LIMIT_WINDOW_SECONDS = 60;
 
-    /** 登录渠道策略配置默认值：互踢（新登录挤掉旧会话） */
+    /**
+     * 登录渠道策略配置默认值：互踢（新登录挤掉旧会话）
+     */
     public static final String DEFAULT_LOGIN_CHANNEL_POLICY = "KICK_OUT";
 
     /**

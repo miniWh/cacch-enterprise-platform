@@ -122,7 +122,7 @@ public class SysMenuServiceImpl implements ISysMenuService {
      * @param menu 菜单实体
      */
     @Override
-    @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED, readOnly = false, timeout = 30)
+    @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED, timeout = 30)
     public void createMenu(SysMenuDO menu) {
         sysMenuMapper.insert(menu);
         log.info("【SysMenu】新增菜单，menuId={}, menuName={}, type={}", menu.getId(), menu.getMenuName(), menu.getMenuType());
@@ -134,7 +134,7 @@ public class SysMenuServiceImpl implements ISysMenuService {
      * @param menu 菜单实体
      */
     @Override
-    @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED, readOnly = false, timeout = 30)
+    @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED, timeout = 30)
     public void updateMenu(SysMenuDO menu) {
         sysMenuMapper.updateById(menu);
         log.info("【SysMenu】编辑菜单，menuId={}", menu.getId());
@@ -146,7 +146,7 @@ public class SysMenuServiceImpl implements ISysMenuService {
      * @param menuId 菜单主键
      */
     @Override
-    @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED, readOnly = false, timeout = 30)
+    @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED, timeout = 30)
     public void deleteMenu(Long menuId) {
         sysMenuMapper.deleteById(menuId);
         log.info("【SysMenu】逻辑删除菜单，menuId={}", menuId);

@@ -1,15 +1,27 @@
 # 生产环境配置（生产启动不得操作数据库结构；敏感配置建议通过 Tomcat setenv.sh 外置注入）
 spring:
   datasource:
-    url: jdbc:postgresql://127.0.0.1:5432/cacch_enterprise
-    username: your_username
-    password: your_password
+    url: jdbc:postgresql://10.80.86.93:5432/cdb
+    username: esb
+    password: esb
+    driver-class-name: org.postgresql.Driver
 
   data:
     redis:
-      host: 127.0.0.1
+      # 生产 Redis 地址通过环境变量 REDIS_HOST 注入
+      host: 10.80.86.95
+      # Redis 端口
       port: 6379
-      # password: your_redis_password
+      # Redis 密码，必须由环境变量 REDIS_PASSWORD 注入（缺失即启动失败）
+      password: cacredis0826
+      lettuce:
+        pool:
+          # 最大活跃连接数（生产环境适当放大）
+          max-active: 16
+          # 最大空闲连接数（减少频繁创建/销毁开销）
+          max-idle: 16
+          # 最小空闲连接数（预创建 4 个，应对突发流量）
+          min-idle: 4
 
   # Flyway：prod 环境禁止自动迁移，prod 部署前须确认 test 已完成迁移
   flyway:

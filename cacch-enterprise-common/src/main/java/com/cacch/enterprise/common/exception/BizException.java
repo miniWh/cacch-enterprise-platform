@@ -14,7 +14,9 @@ import lombok.Getter;
 @Getter
 public class BizException extends RuntimeException {
 
-    /** 业务返回码 */
+    /**
+     * 业务返回码
+     */
     private final int code;
 
     /**

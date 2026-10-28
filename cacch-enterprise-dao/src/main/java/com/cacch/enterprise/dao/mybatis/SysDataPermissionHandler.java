@@ -29,14 +29,16 @@ import java.util.concurrent.ConcurrentHashMap;
 @Component
 public class SysDataPermissionHandler implements DataPermissionHandler {
 
-    /** mappedStatementId → @DataScope 注解缓存（反射解析结果，避免重复反射） */
+    /**
+     * mappedStatementId → @DataScope 注解缓存（反射解析结果，避免重复反射）
+     */
     private static final Map<String, Optional<DataScope>> ANNOTATION_CACHE = new ConcurrentHashMap<>();
 
     /**
      * 向原查询条件追加数据权限过滤表达式
      *
-     * @param where              原 SQL 的 WHERE 表达式，可能为 null
-     * @param mappedStatementId  MyBatis 语句全限定 ID（接口全名.方法名）
+     * @param where             原 SQL 的 WHERE 表达式，可能为 null
+     * @param mappedStatementId MyBatis 语句全限定 ID（接口全名.方法名）
      * @return 追加数据权限后的 WHERE 表达式；无需过滤时原样返回
      */
     @Override
@@ -109,7 +111,8 @@ public class SysDataPermissionHandler implements DataPermissionHandler {
             String condition = switch (scope) {
                 case ALL -> null; // 全部：不限制
                 case DEPT -> buildDeptCondition(columnPrefix, user.getDeptId());
-                case DEPT_AND_CHILD -> buildDeptAndChildCondition(columnPrefix, user.getDeptId(), user.getDeptAncestors());
+                case DEPT_AND_CHILD ->
+                        buildDeptAndChildCondition(columnPrefix, user.getDeptId(), user.getDeptAncestors());
                 case SELF -> buildSelfCondition(columnPrefix, user.getUserId());
             };
             if (condition != null) {

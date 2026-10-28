@@ -3,6 +3,7 @@ package com.cacch.enterprise.security;
 import com.cacch.enterprise.common.result.ResultCode;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.jspecify.annotations.NonNull;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.stereotype.Component;
@@ -23,8 +24,8 @@ public class RestAccessDeniedHandler implements AccessDeniedHandler {
      * @param accessDeniedException 拒绝访问异常
      */
     @Override
-    public void handle(HttpServletRequest request, HttpServletResponse response,
-                       AccessDeniedException accessDeniedException) {
+    public void handle(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response,
+                       @NonNull AccessDeniedException accessDeniedException) {
         RestResponseWriter.write(response, ResultCode.AUTH_PERMISSION_DENIED.getCode(),
                 ResultCode.AUTH_PERMISSION_DENIED.getMessage());
     }

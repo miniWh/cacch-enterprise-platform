@@ -21,8 +21,8 @@ public interface SysUserMapper extends BaseMapper<SysUserDO> {
      * <p>部门筛选含所选部门全部下级；数据权限条件由 DataPermissionInterceptor 依据
      * {@code @DataScope(tableAlias = "u")} 自动追加，禁止在本 SQL 手写部门过滤。
      *
-     * @param page     分页参数（MyBatis-Plus 分页插件）
-     * @param query    查询条件（工号/姓名/手机号模糊，部门/状态精确）
+     * @param page  分页参数（MyBatis-Plus 分页插件）
+     * @param query 查询条件（工号/姓名/手机号模糊，部门/状态精确）
      * @return 用户分页数据，含 total 与记录列表
      */
     @DataScope(tableAlias = "u")

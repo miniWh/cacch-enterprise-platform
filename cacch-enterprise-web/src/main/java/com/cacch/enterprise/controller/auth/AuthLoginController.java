@@ -54,7 +54,7 @@ public class AuthLoginController {
     /**
      * 账号密码登录
      *
-     * @param request 登录请求（账号、密码、验证码）
+     * @param request        登录请求（账号、密码、验证码）
      * @param servletRequest HTTP 请求（取客户端 IP 做限流与登录留痕）
      * @return 双令牌对
      * @throws BizException 限流（42900）、验证码无效（40102）、凭据错误（40101）、账号停用（40103）时抛出

@@ -13,6 +13,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.jspecify.annotations.NonNull;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -57,8 +58,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
      * @throws IOException      IO 异常
      */
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
-                                    FilterChain filterChain) throws ServletException, IOException {
+    protected void doFilterInternal(HttpServletRequest request, @NonNull HttpServletResponse response,
+                                    @NonNull FilterChain filterChain) throws ServletException, IOException {
         try {
             String header = request.getHeader(HEADER_AUTHORIZATION);
             if (header == null || !header.startsWith(PREFIX_BEARER)) {

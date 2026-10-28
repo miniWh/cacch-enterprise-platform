@@ -17,10 +17,14 @@ import java.util.List;
 @AllArgsConstructor
 public class PageResult<T> {
 
-    /** 总记录数 */
+    /**
+     * 总记录数
+     */
     private long total;
 
-    /** 当前页数据列表，无数据时为空列表（非 null） */
+    /**
+     * 当前页数据列表，无数据时为空列表（非 null）
+     */
     private List<T> list;
 
     /**

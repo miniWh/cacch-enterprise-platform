@@ -22,33 +22,53 @@ import java.util.List;
 @AllArgsConstructor
 public class MenuVO implements Serializable {
 
-    /** 菜单主键，对应 sys_menu.id */
+    /**
+     * 菜单主键，对应 sys_menu.id
+     */
     private Long id;
 
-    /** 父节点 ID，0 表示根节点 */
+    /**
+     * 父节点 ID，0 表示根节点
+     */
     private Long parentId;
 
-    /** 名称（目录名/菜单名） */
+    /**
+     * 名称（目录名/菜单名）
+     */
     private String menuName;
 
-    /** 节点类型：D 目录 / M 菜单 */
+    /**
+     * 节点类型：D 目录 / M 菜单
+     */
     private String menuType;
 
-    /** 前端路由地址，如 /system/users */
+    /**
+     * 前端路由地址，如 /system/users
+     */
     private String path;
 
-    /** 前端组件路径，如 system/users/Users */
+    /**
+     * 前端组件路径，如 system/users/Users
+     */
     private String component;
 
-    /** 图标 */
+    /**
+     * 图标
+     */
     private String icon;
 
-    /** 是否可见：0 显示 / 1 隐藏 */
+    /**
+     * 是否可见：0 显示 / 1 隐藏
+     */
     private Integer visible;
 
-    /** 排序号，同层级内升序 */
+    /**
+     * 排序号，同层级内升序
+     */
     private Integer orderNum;
 
-    /** 子节点列表，叶子节点为空列表 */
+    /**
+     * 子节点列表，叶子节点为空列表
+     */
     private List<MenuVO> children;
 }

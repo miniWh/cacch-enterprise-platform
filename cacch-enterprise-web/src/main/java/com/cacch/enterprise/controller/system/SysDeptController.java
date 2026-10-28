@@ -3,6 +3,7 @@ package com.cacch.enterprise.controller.system;
 import com.cacch.enterprise.common.annotation.RequiresPermission;
 import com.cacch.enterprise.common.constant.system.SystemPathConstants;
 import com.cacch.enterprise.common.constant.system.SystemPermissionConstants;
+import com.cacch.enterprise.common.exception.BizException;
 import com.cacch.enterprise.common.result.Result;
 import com.cacch.enterprise.convert.system.SysDeptConverter;
 import com.cacch.enterprise.dao.entity.system.SysDeptDO;

@@ -22,9 +22,13 @@ import java.util.Set;
 @AllArgsConstructor
 public class UserPermissionModel implements Serializable {
 
-    /** 启用状态菜单/按钮扁平列表（构建树前），无权限时为空列表 */
+    /**
+     * 启用状态菜单/按钮扁平列表（构建树前），无权限时为空列表
+     */
     private List<SysMenuDO> menus;
 
-    /** 按钮权限标识集合，无权限时为空集合 */
+    /**
+     * 按钮权限标识集合，无权限时为空集合
+     */
     private Set<String> perms;
 }

@@ -14,19 +14,29 @@ import lombok.Getter;
 @AllArgsConstructor
 public enum DataScopeEnum {
 
-    /** 全部数据 */
+    /**
+     * 全部数据
+     */
     ALL(1),
 
-    /** 本部门数据 */
+    /**
+     * 本部门数据
+     */
     DEPT(2),
 
-    /** 本部门及下级部门数据 */
+    /**
+     * 本部门及下级部门数据
+     */
     DEPT_AND_CHILD(3),
 
-    /** 仅本人数据 */
+    /**
+     * 仅本人数据
+     */
     SELF(4);
 
-    /** 档位值，与 sys_role.data_scope 字段一致 */
+    /**
+     * 档位值，与 sys_role.data_scope 字段一致
+     */
     private final int code;
 
     /**

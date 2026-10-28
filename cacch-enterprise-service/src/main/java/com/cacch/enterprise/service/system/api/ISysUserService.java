@@ -50,7 +50,7 @@ public interface ISysUserService {
     /**
      * 校验工号是否已被占用（逻辑删除后可复用，不算占用）
      *
-     * @param username     待校验工号
+     * @param username      待校验工号
      * @param excludeUserId 排除的用户 ID（编辑场景传本人），可空
      * @return 已被其他用户占用返回 true
      */
@@ -59,7 +59,7 @@ public interface ISysUserService {
     /**
      * 校验手机号是否已被占用（逻辑删除后可复用，不算占用）
      *
-     * @param phone        待校验手机号
+     * @param phone         待校验手机号
      * @param excludeUserId 排除的用户 ID（编辑场景传本人），可空
      * @return 已被其他用户占用返回 true
      */

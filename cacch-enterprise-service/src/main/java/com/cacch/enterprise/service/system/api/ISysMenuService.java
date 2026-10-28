@@ -52,7 +52,7 @@ public interface ISysMenuService {
     /**
      * 校验权限标识是否已存在
      *
-     * @param perms       权限标识
+     * @param perms         权限标识
      * @param excludeMenuId 排除的菜单 ID（编辑场景传本人），可空
      * @return 已存在返回 true
      */

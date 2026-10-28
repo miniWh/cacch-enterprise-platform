@@ -48,7 +48,7 @@ public interface ISysRoleService {
     /**
      * 校验角色编码是否已存在
      *
-     * @param roleCode 角色编码
+     * @param roleCode      角色编码
      * @param excludeRoleId 排除的角色 ID（编辑场景传本人），可空
      * @return 已存在返回 true
      */
@@ -57,7 +57,7 @@ public interface ISysRoleService {
     /**
      * 校验角色名称是否已存在
      *
-     * @param roleName 角色名称
+     * @param roleName      角色名称
      * @param excludeRoleId 排除的角色 ID（编辑场景传本人），可空
      * @return 已存在返回 true
      */

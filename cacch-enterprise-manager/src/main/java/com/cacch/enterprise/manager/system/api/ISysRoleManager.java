@@ -1,5 +1,6 @@
 package com.cacch.enterprise.manager.system.api;
 
+import com.cacch.enterprise.common.exception.BizException;
 import com.cacch.enterprise.manager.system.model.RoleSaveCommand;
 
 import java.util.List;

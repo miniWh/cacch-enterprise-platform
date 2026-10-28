@@ -10,12 +10,18 @@ package com.cacch.enterprise.common.enums.auth;
  */
 public enum AuthChannelEnum {
 
-    /** 账号密码登录（工号或手机号 + 密码） */
+    /**
+     * 账号密码登录（工号或手机号 + 密码）
+     */
     PASSWORD,
 
-    /** 企业微信扫码登录（预留） */
+    /**
+     * 企业微信扫码登录（预留）
+     */
     WECOM_QR,
 
-    /** 企业微信自建应用免登（预留） */
+    /**
+     * 企业微信自建应用免登（预留）
+     */
     WECOM_INAPP
 }

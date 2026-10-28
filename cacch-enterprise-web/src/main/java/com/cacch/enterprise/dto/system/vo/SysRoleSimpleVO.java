@@ -18,12 +18,18 @@ import java.io.Serializable;
 @AllArgsConstructor
 public class SysRoleSimpleVO implements Serializable {
 
-    /** 角色主键，对应 sys_role.id */
+    /**
+     * 角色主键，对应 sys_role.id
+     */
     private Long id;
 
-    /** 角色编码 */
+    /**
+     * 角色编码
+     */
     private String roleCode;
 
-    /** 角色名称 */
+    /**
+     * 角色名称
+     */
     private String roleName;
 }

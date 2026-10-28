@@ -1,5 +1,6 @@
 package com.cacch.enterprise.service.auth.api;
 
+import com.cacch.enterprise.common.exception.BizException;
 import com.cacch.enterprise.service.auth.model.CaptchaResult;
 
 /**

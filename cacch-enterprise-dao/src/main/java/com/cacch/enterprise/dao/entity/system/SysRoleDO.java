@@ -18,21 +18,33 @@ import lombok.EqualsAndHashCode;
 @TableName("sys_role")
 public class SysRoleDO extends BaseDO {
 
-    /** 角色编码，全局唯一（逻辑删除后可复用），大写字母+下划线，创建后不可修改 */
+    /**
+     * 角色编码，全局唯一（逻辑删除后可复用），大写字母+下划线，创建后不可修改
+     */
     private String roleCode;
 
-    /** 角色名称，全局唯一 */
+    /**
+     * 角色名称，全局唯一
+     */
     private String roleName;
 
-    /** 数据权限档位：1 全部 / 2 本部门 / 3 本部门及下级 / 4 仅本人，见 DataScopeEnum */
+    /**
+     * 数据权限档位：1 全部 / 2 本部门 / 3 本部门及下级 / 4 仅本人，见 DataScopeEnum
+     */
     private Integer dataScope;
 
-    /** 是否内置角色：0 否 / 1 是（内置角色编码名称不可改、不可删除） */
+    /**
+     * 是否内置角色：0 否 / 1 是（内置角色编码名称不可改、不可删除）
+     */
     private Integer builtIn;
 
-    /** 状态：0 正常 / 1 停用 */
+    /**
+     * 状态：0 正常 / 1 停用
+     */
     private Integer status;
 
-    /** 备注 */
+    /**
+     * 备注
+     */
     private String remark;
 }

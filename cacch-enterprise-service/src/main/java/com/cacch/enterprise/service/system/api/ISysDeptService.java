@@ -29,9 +29,9 @@ public interface ISysDeptService {
     /**
      * 校验同级部门名称是否已存在
      *
-     * @param deptName       部门名称
-     * @param parentId       父部门 ID
-     * @param excludeDeptId  排除的部门 ID（编辑场景传本人），可空
+     * @param deptName      部门名称
+     * @param parentId      父部门 ID
+     * @param excludeDeptId 排除的部门 ID（编辑场景传本人），可空
      * @return 已存在返回 true
      */
     boolean existsNameInSiblings(String deptName, Long parentId, Long excludeDeptId);

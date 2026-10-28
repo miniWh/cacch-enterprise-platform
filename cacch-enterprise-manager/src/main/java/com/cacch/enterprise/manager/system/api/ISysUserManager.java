@@ -1,5 +1,6 @@
 package com.cacch.enterprise.manager.system.api;
 
+import com.cacch.enterprise.common.exception.BizException;
 import com.cacch.enterprise.manager.system.model.CreateUserCommand;
 import com.cacch.enterprise.manager.system.model.UpdateUserCommand;
 
@@ -39,7 +40,7 @@ public interface ISysUserManager {
     /**
      * 重置密码为指定新密码（成功后删除目标用户会话）
      *
-     * @param userId     用户主键
+     * @param userId      用户主键
      * @param newPassword 新密码明文
      * @throws BizException 用户不存在、越界操作或密码不满足复杂度时抛出
      */

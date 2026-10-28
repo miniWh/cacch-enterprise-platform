@@ -3,6 +3,7 @@ package com.cacch.enterprise.security;
 import com.cacch.enterprise.common.result.ResultCode;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.jspecify.annotations.NonNull;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.stereotype.Component;
@@ -21,11 +22,10 @@ public class RestAuthenticationEntryPoint implements AuthenticationEntryPoint {
      * @param request       HTTP 请求
      * @param response      HTTP 响应
      * @param authException 认证异常
-     * @throws IOException 响应写出异常
      */
     @Override
-    public void commence(HttpServletRequest request, HttpServletResponse response,
-                         AuthenticationException authException) {
+    public void commence(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response,
+                         @NonNull AuthenticationException authException) {
         RestResponseWriter.write(response, ResultCode.AUTH_NOT_LOGIN.getCode(),
                 ResultCode.AUTH_NOT_LOGIN.getMessage());
     }

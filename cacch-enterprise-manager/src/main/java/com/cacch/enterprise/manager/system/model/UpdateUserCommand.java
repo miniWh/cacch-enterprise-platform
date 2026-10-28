@@ -19,19 +19,29 @@ import java.util.List;
 @AllArgsConstructor
 public class UpdateUserCommand implements Serializable {
 
-    /** 用户主键 */
+    /**
+     * 用户主键
+     */
     private Long userId;
 
-    /** 姓名 */
+    /**
+     * 姓名
+     */
     private String realName;
 
-    /** 归属部门 ID */
+    /**
+     * 归属部门 ID
+     */
     private Long deptId;
 
-    /** 手机号（登录账号） */
+    /**
+     * 手机号（登录账号）
+     */
     private String phone;
 
-    /** 邮箱，可选 */
+    /**
+     * 邮箱，可选
+     */
     private String email;
 
     /**

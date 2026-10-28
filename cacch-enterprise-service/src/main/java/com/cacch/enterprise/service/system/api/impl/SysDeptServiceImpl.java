@@ -6,7 +6,6 @@ import com.cacch.enterprise.common.result.ResultCode;
 import com.cacch.enterprise.dao.entity.system.SysDeptDO;
 import com.cacch.enterprise.dao.mapper.system.SysDeptMapper;
 import com.cacch.enterprise.service.system.api.ISysDeptService;
-import com.cacch.enterprise.service.system.api.ISysUserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -27,7 +26,6 @@ import java.util.List;
 public class SysDeptServiceImpl implements ISysDeptService {
 
     private final SysDeptMapper sysDeptMapper;
-    private final ISysUserService sysUserService;
 
     /**
      * 查询全部未删除部门（含停用，供部门树展示）
@@ -188,8 +186,8 @@ public class SysDeptServiceImpl implements ISysDeptService {
     /**
      * 解析移动后的新祖先链（含环校验：目标父部门不得为自身或自身下级）
      *
-     * @param deptId    部门主键
-     * @param existing  现有部门实体
+     * @param deptId      部门主键
+     * @param existing    现有部门实体
      * @param newParentId 新父部门 ID（0 表示根）
      * @return 新祖先链字符串
      * @throws BizException 目标父部门不存在或形成环时抛出

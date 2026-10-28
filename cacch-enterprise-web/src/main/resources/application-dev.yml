@@ -1,19 +1,32 @@
 # 开发环境配置（本地开发：内嵌容器启动，Flyway 关闭，建库 cacch_enterprise）
 spring:
   datasource:
-    url: jdbc:postgresql://127.0.0.1:5432/cacch_enterprise
-    username: your_username
-    password: your_password
+    url: jdbc:postgresql://10.80.86.93:5432/cdb
+    username: esb
+    password: esb
+    driver-class-name: org.postgresql.Driver
 
+  # ---------- Redis 配置 ----------
   data:
     redis:
-      host: 127.0.0.1
+      # 生产 Redis 地址通过环境变量 REDIS_HOST 注入
+      host: 10.80.86.95
+      # Redis 端口
       port: 6379
-      # password: your_redis_password
+      # Redis 密码，必须由环境变量 REDIS_PASSWORD 注入（缺失即启动失败）
+      password: cacredis0826
+      lettuce:
+        pool:
+          # 最大活跃连接数（生产环境适当放大）
+          max-active: 16
+          # 最大空闲连接数（减少频繁创建/销毁开销）
+          max-idle: 16
+          # 最小空闲连接数（预创建 4 个，应对突发流量）
+          min-idle: 4
 
-  # Flyway：本地 dev 关闭；仅 test 环境自动迁移（见 .trae/rules/project_rules.md 第 6.2 节）
+  # Flyway：本地 dev 开启，目前仅有生产环境，因此在本地测试时启用
   flyway:
-    enabled: false
+    enabled: true
     locations: classpath:db/migration
 
 # 应用自身配置

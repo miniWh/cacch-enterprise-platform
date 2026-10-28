@@ -18,12 +18,18 @@ import java.io.Serializable;
 @AllArgsConstructor
 public class AuthLoginCommand implements Serializable {
 
-    /** 登录账号（工号或手机号，由实现方按格式自动识别） */
+    /**
+     * 登录账号（工号或手机号，由实现方按格式自动识别）
+     */
     private String account;
 
-    /** 明文密码，仅用于本次认证，禁止落日志 */
+    /**
+     * 明文密码，仅用于本次认证，禁止落日志
+     */
     private String password;
 
-    /** 登录来源 IP */
+    /**
+     * 登录来源 IP
+     */
     private String loginIp;
 }

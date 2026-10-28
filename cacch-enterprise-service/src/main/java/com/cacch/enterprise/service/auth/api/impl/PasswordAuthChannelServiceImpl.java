@@ -54,7 +54,7 @@ public class PasswordAuthChannelServiceImpl implements IAuthChannelService {
             log.info("【AuthChannel】账号密码登录失败：账号不存在，accountType={}", isPhone ? "PHONE" : "USERNAME");
             throw new BizException(ResultCode.AUTH_CREDENTIALS_INVALID);
         }
-        if (!PasswordAppSupport.verify(command.getPassword(), user.getPassword())) {
+        if (PasswordAppSupport.verify(command.getPassword(), user.getPassword())) {
             log.info("【AuthChannel】账号密码登录失败：密码错误，userId={}", user.getId());
             throw new BizException(ResultCode.AUTH_CREDENTIALS_INVALID);
         }

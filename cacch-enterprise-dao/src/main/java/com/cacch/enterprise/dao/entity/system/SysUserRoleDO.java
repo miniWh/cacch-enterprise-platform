@@ -17,9 +17,13 @@ import lombok.EqualsAndHashCode;
 @TableName("sys_user_role")
 public class SysUserRoleDO extends BaseDO {
 
-    /** 用户 ID，对应 sys_user.id */
+    /**
+     * 用户 ID，对应 sys_user.id
+     */
     private Long userId;
 
-    /** 角色 ID，对应 sys_role.id */
+    /**
+     * 角色 ID，对应 sys_role.id
+     */
     private Long roleId;
 }

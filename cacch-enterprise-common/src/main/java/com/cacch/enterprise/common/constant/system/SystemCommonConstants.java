@@ -14,22 +14,34 @@ public final class SystemCommonConstants {
     private SystemCommonConstants() {
     }
 
-    /** 内置角色编码：超级管理员（拥有全部权限与数据权限，代码层全量放行） */
+    /**
+     * 内置角色编码：超级管理员（拥有全部权限与数据权限，代码层全量放行）
+     */
     public static final String ROLE_SUPER_ADMIN = "SUPER_ADMIN";
 
-    /** 内置角色编码：系统管理员 */
+    /**
+     * 内置角色编码：系统管理员
+     */
     public static final String ROLE_SYS_ADMIN = "SYS_ADMIN";
 
-    /** 内置角色编码：部门管理员 */
+    /**
+     * 内置角色编码：部门管理员
+     */
     public static final String ROLE_DEPT_ADMIN = "DEPT_ADMIN";
 
-    /** 内置角色编码：审计员 */
+    /**
+     * 内置角色编码：审计员
+     */
     public static final String ROLE_AUDITOR = "AUDITOR";
 
-    /** 内置角色编码：普通员工 */
+    /**
+     * 内置角色编码：普通员工
+     */
     public static final String ROLE_USER = "USER";
 
-    /** 权限缓存 TTL（秒），与访问令牌有效期一致（12 小时） */
+    /**
+     * 权限缓存 TTL（秒），与访问令牌有效期一致（12 小时）
+     */
     public static final int PERMISSION_CACHE_TTL_SECONDS = 12 * 3600;
 
     /**

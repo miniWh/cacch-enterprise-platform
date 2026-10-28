@@ -13,6 +13,8 @@ public final class RedisConstants {
     private RedisConstants() {
     }
 
-    /** Redis Key 全局前缀 */
+    /**
+     * Redis Key 全局前缀
+     */
     public static final String KEY_PREFIX = "enterprise:";
 }

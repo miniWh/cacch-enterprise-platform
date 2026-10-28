@@ -66,7 +66,7 @@ public class SysUserManagerImpl implements ISysUserManager {
             log.info("【SysUser】新增用户终止：手机号已占用，phone={}", maskPhone(command.getPhone()));
             throw new BizException(ResultCode.SYSTEM_PHONE_DUPLICATE);
         }
-        if (!PasswordAppSupport.matchesComplexity(command.getPassword())) {
+        if (PasswordAppSupport.matchesComplexity(command.getPassword())) {
             log.info("【SysUser】新增用户终止：初始密码不满足复杂度，username={}", command.getUsername());
             throw new BizException(ResultCode.PARAM_INVALID, "密码须为 8~64 位且同时包含字母与数字");
         }
@@ -98,7 +98,7 @@ public class SysUserManagerImpl implements ISysUserManager {
      * @throws BizException 用户不存在、内置保护、越界操作、手机号重复或角色非法时抛出
      */
     @Override
-    @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED, readOnly = false, timeout = 30)
+    @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED, timeout = 30)
     public void updateUser(UpdateUserCommand command) {
         SysUserDO target = requireUser(command.getUserId());
         assertNotSuperAdmin(target, "编辑");
@@ -149,7 +149,7 @@ public class SysUserManagerImpl implements ISysUserManager {
     /**
      * 重置密码为指定新密码（成功后删除目标用户会话）
      *
-     * @param userId     用户主键
+     * @param userId      用户主键
      * @param newPassword 新密码明文
      * @throws BizException 用户不存在、越界操作或密码不满足复杂度时抛出
      */
@@ -157,7 +157,7 @@ public class SysUserManagerImpl implements ISysUserManager {
     public void resetPassword(Long userId, String newPassword) {
         SysUserDO target = requireUser(userId);
         assertTargetInScope(target);
-        if (!PasswordAppSupport.matchesComplexity(newPassword)) {
+        if (PasswordAppSupport.matchesComplexity(newPassword)) {
             log.info("【SysUser】重置密码终止：新密码不满足复杂度，userId={}", userId);
             throw new BizException(ResultCode.PARAM_INVALID, "密码须为 8~64 位且同时包含字母与数字");
         }
@@ -173,7 +173,7 @@ public class SysUserManagerImpl implements ISysUserManager {
      * @throws BizException 用户不存在、内置保护或越界操作时抛出
      */
     @Override
-    @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED, readOnly = false, timeout = 30)
+    @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED, timeout = 30)
     public void deleteById(Long userId) {
         SysUserDO target = requireUser(userId);
         assertNotSuperAdmin(target, "删除");

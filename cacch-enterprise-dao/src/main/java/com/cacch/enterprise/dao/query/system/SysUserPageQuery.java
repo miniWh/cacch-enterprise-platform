@@ -16,18 +16,28 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class SysUserPageQuery {
 
-    /** 工号模糊搜索，可空 */
+    /**
+     * 工号模糊搜索，可空
+     */
     private String username;
 
-    /** 姓名模糊搜索，可空 */
+    /**
+     * 姓名模糊搜索，可空
+     */
     private String realName;
 
-    /** 手机号模糊搜索，可空 */
+    /**
+     * 手机号模糊搜索，可空
+     */
     private String phone;
 
-    /** 按部门筛选（含下级部门），对应 sys_dept.id，可空 */
+    /**
+     * 按部门筛选（含下级部门），对应 sys_dept.id，可空
+     */
     private Long deptId;
 
-    /** 状态筛选：0 启用 / 1 停用，可空 */
+    /**
+     * 状态筛选：0 启用 / 1 停用，可空
+     */
     private Integer status;
 }

@@ -3,7 +3,7 @@
 <configuration>
     <!-- 日志格式：时间、线程、traceId（由 TraceIdFilter 写入 MDC）、级别、logger、消息 -->
     <property name="LOG_PATTERN"
-              value="%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] [traceId:%X{traceId}] %-5level %logger{50} - %msg%n"/>
+              value="%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] [traceId:%X{traceId:-}] %-5level %logger{50} [%file:%line] - %msg%n"/>
 
     <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>
@@ -16,8 +16,43 @@
         <appender-ref ref="CONSOLE"/>
     </root>
 
+    <!-- 文件：按天 + 按大小滚动 -->
+    <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${LOG_FILE}.log</file>
+        <encoder>
+            <charset>UTF-8</charset>
+            <pattern>${LOG_PATTERN}</pattern>
+        </encoder>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <fileNamePattern>${LOG_FILE}.%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+            <maxHistory>${MAX_HISTORY}</maxHistory>
+            <maxFileSize>${MAX_FILE_SIZE}</maxFileSize>
+            <totalSizeCap>${TOTAL_SIZE_CAP}</totalSizeCap>
+            <cleanHistoryOnStart>true</cleanHistoryOnStart>
+        </rollingPolicy>
+    </appender>
+
     <!-- 测试环境可开启业务包 DEBUG（调试 / SQL）；生产环境禁止开启 -->
-    <springProfile name="test">
+    <springProfile name="dev">
         <logger name="com.cacch.enterprise" level="DEBUG"/>
+    </springProfile>
+
+    <!-- ========== 生产环境（spring.profiles.active=prod） ========== -->
+    <springProfile name="prod">
+        <logger name="com.cacch.integration" level="INFO"/>
+
+        <root level="WARN">
+            <appender-ref ref="FILE"/>
+        </root>
+    </springProfile>
+
+    <!-- ========== 其他 profile 兜底 ========== -->
+    <springProfile name="!test &amp; !prod">
+        <logger name="com.cacch.integration" level="INFO"/>
+
+        <root level="INFO">
+            <appender-ref ref="CONSOLE"/>
+            <appender-ref ref="FILE"/>
+        </root>
     </springProfile>
 </configuration>

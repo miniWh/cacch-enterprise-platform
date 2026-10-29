@@ -13,7 +13,7 @@ export const http = axios.create({
 let refreshing: Promise<boolean> | null = null
 
 /** 无需携带令牌的接口前缀（登录前场景） */
-const WHITELIST = ['/auth/captcha', '/auth/login', '/auth/refresh']
+const WHITELIST = ['/v1/auth/captcha', '/v1/auth/login', '/v1/auth/refresh']
 
 http.interceptors.request.use((config) => {
   const token = localStorage.getItem('access_token')
@@ -61,7 +61,7 @@ http.interceptors.response.use(
     const config = error.config as (AxiosRequestConfig & { _retried?: boolean }) | undefined
     const code = error.response?.data?.code
     // 401 未登录且尚未重试过：尝试静默刷新后重放原请求
-    if (code === NOT_LOGIN_CODE && config && !config._retried && config.url && !config.url.includes('/auth/')) {
+    if (code === NOT_LOGIN_CODE && config && !config._retried && config.url && !config.url.includes('/auth/refresh')) {
       config._retried = true
       refreshing = refreshing ?? tryRefresh()
       const ok = await refreshing
@@ -76,7 +76,7 @@ http.interceptors.response.use(
     }
     // 刷新令牌失效或被互踢：清空令牌跳登录
     if (code === REFRESH_INVALID_CODE || code === NOT_LOGIN_CODE || code === undefined) {
-      if (config?.url?.startsWith('/auth/')) {
+      if (config?.url?.includes('/auth/refresh')) {
         clearTokens()
         window.location.hash = '#/login'
       }

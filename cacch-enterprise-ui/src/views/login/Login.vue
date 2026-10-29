@@ -2,9 +2,7 @@
   <div class="flex min-h-screen items-center justify-center bg-gradient-to-br from-indigo-50 via-white to-violet-50">
     <div class="w-[400px] rounded-2xl border border-gray-100 bg-white p-8 shadow-lg">
       <div class="flex flex-col items-center">
-        <span class="flex h-12 w-12 items-center justify-center rounded-xl bg-indigo-600 text-white">
-          <BaseIcon name="logo" :size="24" />
-        </span>
+        <img src="../../assets/logo-cac-group.png" alt="泰禾集团" class="h-12 w-auto" />
         <h1 class="mt-4 text-xl font-semibold text-gray-900">Cacch 企业管理平台</h1>
         <p class="mt-1 text-[13px] text-gray-400">统一身份认证 · 账号密码登录</p>
       </div>
@@ -51,7 +49,6 @@ import { onMounted, reactive, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ElForm, ElMessage, type FormInstance, type FormRules } from 'element-plus'
 import { User, Lock, Key } from '@element-plus/icons-vue'
-import BaseIcon from '../../components/BaseIcon.vue'
 import { getCaptcha } from '../../api/auth'
 import { useAuthStore } from '../../stores/auth'
 

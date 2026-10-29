@@ -12,9 +12,9 @@
 
       <!-- 列表 -->
       <el-table :data="rows" v-loading="loading" class="mt-4" stripe>
-        <el-table-column prop="roleCode" label="角色编码" width="180" />
-        <el-table-column prop="roleName" label="角色名称" width="160" />
-        <el-table-column label="数据权限" width="140">
+        <el-table-column prop="roleCode" label="角色编码" width="150" />
+        <el-table-column prop="roleName" label="角色名称" width="130" />
+        <el-table-column label="数据权限" width="110">
           <template #default="{ row }">{{ dataScopeText(row.dataScope) }}</template>
         </el-table-column>
         <el-table-column label="类型" width="90">
@@ -31,8 +31,10 @@
           </template>
         </el-table-column>
         <el-table-column prop="remark" label="备注" min-width="160" show-overflow-tooltip />
-        <el-table-column prop="createTime" label="创建时间" width="170" />
-        <el-table-column label="操作" width="220" fixed="right">
+        <el-table-column label="创建时间" width="170">
+          <template #default="{ row }">{{ formatDateTime(row.createTime) }}</template>
+        </el-table-column>
+        <el-table-column label="操作" width="190" fixed="right">
           <template #default="{ row }">
             <el-button v-permission="'system:role:edit'" link type="primary" @click="openEdit(row)">编辑</el-button>
             <el-button v-permission="'system:role:grant'" link type="primary" @click="openGrant(row)">菜单授权</el-button>
@@ -111,6 +113,7 @@ import {
   createRole, deleteRole, grantRoleMenus, listMenuTree, listRoleMenuIds,
   pageRoles, updateRole, type MenuTreeVO, type SysRoleVO
 } from '../../../api/system'
+import { formatDateTime } from '../../../utils/format'
 
 const rows = ref<SysRoleVO[]>([])
 const total = ref(0)

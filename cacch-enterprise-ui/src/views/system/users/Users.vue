@@ -31,7 +31,7 @@
       <el-table :data="rows" v-loading="loading" class="mt-4" stripe>
         <el-table-column prop="username" label="工号" width="140" />
         <el-table-column prop="realName" label="姓名" width="120" />
-        <el-table-column prop="phone" label="手机号" width="140" />
+        <el-table-column prop="phone" label="手机号" width="130" />
         <el-table-column prop="email" label="邮箱" min-width="160" show-overflow-tooltip />
         <el-table-column label="状态" width="90">
           <template #default="{ row }">
@@ -40,9 +40,13 @@
             </el-tag>
           </template>
         </el-table-column>
-        <el-table-column prop="lastLoginTime" label="最近登录" width="170" />
-        <el-table-column prop="createTime" label="创建时间" width="170" />
-        <el-table-column label="操作" width="230" fixed="right">
+        <el-table-column label="最近登录" width="170">
+          <template #default="{ row }">{{ formatDateTime(row.lastLoginTime) }}</template>
+        </el-table-column>
+        <el-table-column label="创建时间" width="170">
+          <template #default="{ row }">{{ formatDateTime(row.createTime) }}</template>
+        </el-table-column>
+        <el-table-column label="操作" width="300" fixed="right">
           <template #default="{ row }">
             <el-button v-permission="'system:user:edit'" link type="primary" @click="openEdit(row)">编辑</el-button>
             <el-button v-permission="'system:user:status'" link :type="row.status === 0 ? 'warning' : 'success'" @click="toggleStatus(row)">
@@ -128,7 +132,9 @@
       <el-table :data="online.rows" v-loading="online.loading" stripe>
         <el-table-column prop="username" label="工号" width="140" />
         <el-table-column prop="realName" label="姓名" width="120" />
-        <el-table-column prop="loginTime" label="登录时间" width="170" />
+        <el-table-column label="登录时间" width="170">
+          <template #default="{ row }">{{ formatDateTime(row.loginTime) }}</template>
+        </el-table-column>
         <el-table-column prop="loginIp" label="登录 IP" min-width="130" />
       </el-table>
     </el-dialog>
@@ -144,6 +150,7 @@ import {
   offlineUser, pageUsers, resetUserPassword, updateUser, updateUserStatus,
   type DeptTreeVO, type OnlineUserVO, type SysRoleSimpleVO, type SysUserVO
 } from '../../../api/system'
+import { formatDateTime } from '../../../utils/format'
 
 const rows = ref<SysUserVO[]>([])
 const total = ref(0)

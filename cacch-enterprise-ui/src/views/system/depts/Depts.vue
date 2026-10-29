@@ -25,7 +25,7 @@
       >
         <el-table-column prop="deptName" label="部门名称" min-width="220" />
         <el-table-column prop="orderNum" label="排序" width="80" />
-        <el-table-column prop="leaderId" label="负责人 ID" width="110" />
+        <el-table-column prop="leaderId" label="负责人 ID" width="170" />
         <el-table-column label="状态" width="90">
           <template #default="{ row }">
             <el-tag :type="row.status === 0 ? 'success' : 'danger'" size="small">
@@ -33,8 +33,8 @@
             </el-tag>
           </template>
         </el-table-column>
-        <el-table-column prop="id" label="部门 ID" width="130" />
-        <el-table-column label="操作" width="160" fixed="right">
+        <el-table-column prop="id" label="部门 ID" width="170" />
+        <el-table-column label="操作" width="180" fixed="right">
           <template #default="{ row }">
             <el-button v-permission="'system:dept:edit'" link type="primary" @click="openEdit(row)">编辑</el-button>
             <el-button v-permission="'system:dept:add'" link type="primary" @click="openCreate(row.id)">新增下级</el-button>

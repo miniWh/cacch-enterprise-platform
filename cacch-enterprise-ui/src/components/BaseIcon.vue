@@ -17,7 +17,6 @@
 // 通用线性图标组件：内置静态页面所需的基础图标（24x24 线性风格）
 // 图标路径字典，按名称取用
 const paths: Record<string, string> = {
-  logo: '<path d="M12 2 4 6.8v10.4L12 22l8-4.8V6.8L12 2z"/><path d="M4 6.8 12 12l8-5.2"/><path d="M12 12v10"/>',
   panel: '<rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 3v18"/>',
   grid: '<rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/>',
   approval: '<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="m9 15 2 2 4-4"/>',

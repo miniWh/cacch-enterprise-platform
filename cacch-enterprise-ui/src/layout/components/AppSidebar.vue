@@ -1,11 +1,9 @@
 <template>
   <aside class="flex w-60 shrink-0 flex-col border-r border-gray-100 bg-white px-3 py-4">
     <!-- 品牌区 -->
-    <div class="flex items-center gap-2 px-2">
-      <span class="flex h-8 w-8 items-center justify-center rounded-lg bg-indigo-600 text-white">
-        <BaseIcon name="logo" :size="18" />
-      </span>
-      <span class="text-[15px] font-semibold text-gray-900">Cacch · 企业平台</span>
+    <div class="flex flex-col items-center gap-2 px-2">
+      <img src="../../assets/logo-cac-group.png" alt="泰禾集团" class="h-9 w-auto" />
+      <span class="text-[13px] font-semibold text-gray-900">Cacch · 企业平台</span>
     </div>
 
     <!-- 动态菜单（后端菜单树驱动） -->
@@ -54,7 +52,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useRoute } from 'vue-router'
-import BaseIcon from '../../components/BaseIcon.vue'
 import { useAuthStore } from '../../stores/auth'
 
 const route = useRoute()

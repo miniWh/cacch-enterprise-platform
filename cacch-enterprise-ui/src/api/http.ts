@@ -35,7 +35,7 @@ async function tryRefresh(): Promise<boolean> {
   }
   try {
     const resp = await axios.post<ApiResult<{ accessToken: string; refreshToken: string }>>(
-      '/api/auth/refresh',
+      '/api/v1/auth/refresh',
       { refreshToken },
       { timeout: 10000 }
     )

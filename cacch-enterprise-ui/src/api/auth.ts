@@ -44,25 +44,25 @@ export interface UserProfileVO {
 
 /** 获取图形验证码 */
 export function getCaptcha() {
-  return http.get<ApiResult<CaptchaVO>>('/auth/captcha').then((r) => r.data.data)
+  return http.get<ApiResult<CaptchaVO>>('/v1/auth/captcha').then((r) => r.data.data)
 }
 
 /** 账号密码登录 */
 export function login(data: { account: string; password: string; captchaId: string; captchaCode: string }) {
-  return http.post<ApiResult<LoginTokenVO>>('/auth/login', data).then((r) => r.data.data)
+  return http.post<ApiResult<LoginTokenVO>>('/v1/auth/login', data).then((r) => r.data.data)
 }
 
 /** 登出 */
 export function logout() {
-  return http.post<ApiResult<void>>('/auth/logout').then((r) => r.data)
+  return http.post<ApiResult<void>>('/v1/auth/logout').then((r) => r.data)
 }
 
 /** 查询当前登录用户信息 */
 export function getProfile() {
-  return http.get<ApiResult<UserProfileVO>>('/auth/profile').then((r) => r.data.data)
+  return http.get<ApiResult<UserProfileVO>>('/v1/auth/profile').then((r) => r.data.data)
 }
 
 /** 修改密码 */
 export function changePassword(data: { oldPassword: string; newPassword: string }) {
-  return http.put<ApiResult<void>>('/auth/profile/password', data).then((r) => r.data)
+  return http.put<ApiResult<void>>('/v1/auth/profile/password', data).then((r) => r.data)
 }

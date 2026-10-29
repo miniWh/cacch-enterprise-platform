@@ -39,4 +39,4 @@ cacch:
     refresh-token-expire: 43200       # 刷新令牌有效期（秒），12 小时（互踢策略下与访问令牌一致）
     login-channel-policy: KICK_OUT    # 多端登录策略：互踢
   cors:
-    allowed-origins: http://127.0.0.1:5173
+    allowed-origins: http://127.0.0.1:5173,http://localhost:5173   # 浏览器 POST 请求必带 Origin 头，两种访问形式都须在白名单内

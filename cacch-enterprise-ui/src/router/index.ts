@@ -28,6 +28,7 @@ const routes: RouteRecordRaw[] = [
   },
   {
     path: '/',
+    name: 'layout',
     component: () => import('../layout/BasicLayout.vue'),
     redirect: '/dashboard',
     children: []
@@ -60,7 +61,8 @@ export function registerDynamicRoutes() {
       }
       const component = resolveComponent(menu.component)
       if (!component) continue
-      router.addRoute('/', {
+      // 第一个参数是父路由 name（而非 path），根路由须声明 name: 'layout' 方可挂载子路由
+      router.addRoute('layout', {
         path: menu.path,
         name: `menu-${menu.id}`,
         component,

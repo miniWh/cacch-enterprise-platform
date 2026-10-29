@@ -30,10 +30,11 @@ const routes: RouteRecordRaw[] = [
     path: '/',
     name: 'layout',
     component: () => import('../layout/BasicLayout.vue'),
-    redirect: '/dashboard',
     children: []
   },
-  { path: '/:pathMatch(.*)*', redirect: '/dashboard' }
+  // 兜底不得 redirect 到动态路由：matcher 层解析先于守卫执行，
+  // 动态路由未注册时会形成 redirect 自环导致栈溢出；/login 为静态路由，安全
+  { path: '/:pathMatch(.*)*', redirect: '/login' }
 ]
 
 const router = createRouter({
@@ -80,27 +81,35 @@ export function resetDynamicRoutes() {
 }
 
 /**
- * 全局守卫：无令牌跳登录；有令牌先加载用户信息再注册动态路由
+ * 全局守卫：无令牌放行公开页/跳登录；有令牌一律先加载用户信息并注册动态路由，
+ * 再放行或将登录页重定向到首页（否则登录页刷新会先于路由注册重定向 /dashboard，
+ * 未注册的路径命中兜底路由形成无限 redirect 导致栈溢出）
  */
 router.beforeEach(async (to) => {
   const auth = useAuthStore()
   const hasToken = !!localStorage.getItem('access_token')
 
-  if (to.meta.public) {
-    return hasToken ? { path: '/dashboard' } : true
-  }
   if (!hasToken) {
+    if (to.meta.public) {
+      return true
+    }
     return { path: '/login', query: to.fullPath === '/' ? undefined : { redirect: to.fullPath } }
   }
+
   try {
     await auth.loadProfile()
     registerDynamicRoutes()
-    return true
   } catch {
     auth.doLogout()
     resetDynamicRoutes()
     return { path: '/login' }
   }
+
+  // 注册完成后统一重定向到首页（此时 /dashboard 已注册，matcher 可正常解析）
+  if (to.path === '/' || to.path === '/login') {
+    return { path: '/dashboard' }
+  }
+  return true
 })
 
 export default router

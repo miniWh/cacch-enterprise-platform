@@ -117,6 +117,13 @@
         </dependency>
     </dependencies>
 
+    <properties>
+        <!-- Skinny War：依赖外置输出目录。
+             本地构建默认落到 target/tomcat-lib；服务器构建通过
+             -Dtomcat.lib.dir=/opt/cacch/tomcat/lib 覆盖到 Tomcat 公共类库 -->
+        <tomcat.lib.dir>${project.build.directory}/tomcat-lib</tomcat.lib.dir>
+    </properties>
+
     <build>
         <finalName>cacch-enterprise-web</finalName>
         <plugins>
@@ -139,6 +146,41 @@
                         </path>
                     </annotationProcessorPaths>
                 </configuration>
+            </plugin>
+
+            <!-- Skinny War（1/2）：War 内不打包任何依赖 jar。
+                 产物仅含业务 class 与资源（约 1~3 MB），依赖由 Tomcat 公共类库提供 -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-war-plugin</artifactId>
+                <version>3.4.0</version>
+                <configuration>
+                    <packagingExcludes>WEB-INF/lib/*.jar</packagingExcludes>
+                </configuration>
+            </plugin>
+
+            <!-- Skinny War（2/2）：把 runtime 依赖导出到 Tomcat 公共类库。
+                 服务器构建：-Dtomcat.lib.dir=/opt/cacch/tomcat/lib
+                 provided（如 spring-boot-starter-tomcat）由 Tomcat 自身提供，不导出 -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <version>3.8.1</version>
+                <executions>
+                    <execution>
+                        <id>copy-deps-to-tomcat-lib</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>copy-dependencies</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${tomcat.lib.dir}</outputDirectory>
+                            <includeScope>runtime</includeScope>
+                            <excludeScope>provided</excludeScope>
+                            <overWriteIfNewer>true</overWriteIfNewer>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>

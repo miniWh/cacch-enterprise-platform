@@ -5,27 +5,19 @@
       <div class="flex flex-wrap items-center gap-3">
         <el-input v-model="query.orderId" placeholder="订单ID" clearable class="!w-44" @keyup.enter="fetchPage" />
         <el-input v-model="query.shopId" placeholder="门店ID" clearable class="!w-36" @keyup.enter="fetchPage" />
-        <el-input v-model="query.orderStatus" placeholder="订单状态" clearable class="!w-36" @keyup.enter="fetchPage" />
-        <el-input v-model="query.orderType" placeholder="订单类型" clearable class="!w-36" @keyup.enter="fetchPage" />
+        <el-select v-model="query.orderStatus" placeholder="订单状态" clearable class="!w-36" @change="onSearch">
+          <el-option v-for="item in ORDER_STATUS_OPTIONS" :key="item.value" :label="item.label" :value="item.value" />
+        </el-select>
+        <el-select v-model="query.orderType" placeholder="订单类型" clearable class="!w-36" @change="onSearch">
+          <el-option v-for="item in ORDER_TYPE_OPTIONS" :key="item.value" :label="item.label" :value="item.value" />
+        </el-select>
         <el-date-picker
           v-model="openTimeRange"
           type="datetimerange"
           range-separator="至"
           start-placeholder="下单开始"
           end-placeholder="下单结束"
-          value-format="YYYY-MM-DDTHH:mm:ss"
-          :default-time="['00:00:00', '23:59:59']"
-          class="!w-72"
-        />
-        <el-date-picker
-          v-model="createdAtRange"
-          type="datetimerange"
-          range-separator="至"
-          start-placeholder="创建开始"
-          end-placeholder="创建结束"
-          value-format="YYYY-MM-DDTHH:mm:ss"
-          :default-time="['00:00:00', '23:59:59']"
-          class="!w-72"
+          class="!w-[380px]"
         />
         <el-button type="primary" :icon="Search" :loading="loading" @click="onSearch">查询</el-button>
         <el-button :icon="RefreshLeft" @click="onReset">重置</el-button>
@@ -39,8 +31,12 @@
         <el-table-column prop="orderId" label="订单ID" min-width="160" show-overflow-tooltip />
         <el-table-column prop="shopId" label="门店ID" width="110" />
         <el-table-column prop="busiOrderNo" label="业务订单号" min-width="150" show-overflow-tooltip />
-        <el-table-column prop="orderStatus" label="订单状态" width="150" />
-        <el-table-column prop="orderType" label="订单类型" width="110" />
+        <el-table-column label="订单状态" width="110">
+          <template #default="{ row }">{{ formatOrderStatus(row.orderStatus) }}</template>
+        </el-table-column>
+        <el-table-column label="订单类型" width="110">
+          <template #default="{ row }">{{ formatOrderType(row.orderType) }}</template>
+        </el-table-column>
         <el-table-column label="订单金额(元)" width="130" align="right">
           <template #default="{ row }">{{ formatAmount(row.orderAmtYuan) }}</template>
         </el-table-column>
@@ -84,6 +80,42 @@ import {
   type KeruyunOrderVO
 } from '../../api/keruyun'
 
+// ---------- 枚举映射（英文枚举 → 中文，不含数字序号） ----------
+const ORDER_STATUS_MAP: Record<string, string> = {
+  WAIT_PROCESSED: '待处理',
+  WAIT_SETTLED: '待结账',
+  SETTLED: '已结账',
+  REFUND: '已退单',
+  INVALID: '已作废',
+  CANCELLED: '已取消',
+  REJECTED: '已拒绝',
+  SUCCESS: '已完成'
+}
+
+const ORDER_TYPE_MAP: Record<string, string> = {
+  FOR_HERE: '堂食',
+  PLATFORM_TAKE_OUT: '平台外卖',
+  SELF_TAKE_OUT: '自管外卖',
+  MEMBER_STORE: '会员充值',
+  NO_ORDER_CASHIER: '无单收银',
+  REPAYMENT_ORDER: '销账订单'
+}
+
+const ORDER_STATUS_OPTIONS = Object.entries(ORDER_STATUS_MAP).map(([value, label]) => ({ value, label }))
+const ORDER_TYPE_OPTIONS = Object.entries(ORDER_TYPE_MAP).map(([value, label]) => ({ value, label }))
+
+/** 订单状态转中文，未知枚举原样返回 */
+function formatOrderStatus(value?: string): string {
+  if (!value) return '-'
+  return ORDER_STATUS_MAP[value] ?? value
+}
+
+/** 订单类型转中文，未知枚举原样返回 */
+function formatOrderType(value?: string): string {
+  if (!value) return '-'
+  return ORDER_TYPE_MAP[value] ?? value
+}
+
 // ---------- 查询条件 ----------
 const query = reactive<KeruyunOrderQuery>({
   orderId: '',
@@ -91,22 +123,22 @@ const query = reactive<KeruyunOrderQuery>({
   orderStatus: '',
   orderType: '',
   openTimeFrom: undefined,
-  openTimeTo: undefined,
-  createdAtFrom: undefined,
-  createdAtTo: undefined
+  openTimeTo: undefined
 })
 
-/** 下单时间区间选择器绑定值（[from, to]） */
-const openTimeRange = ref<[string, string] | null>(null)
-/** 创建时间区间选择器绑定值（[from, to]） */
-const createdAtRange = ref<[string, string] | null>(null)
+/** 下单时间区间选择器绑定值（Date 对象数组） */
+const openTimeRange = ref<[Date, Date] | null>(null)
 
-/** 将区间选择器值同步到 query 的 From/To 字段 */
+/** 将 Date 格式化为 yyyy-MM-ddTHH:mm:ss */
+function formatToLocalDateTime(d: Date): string {
+  const pad = (n: number) => String(n).padStart(2, '0')
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`
+}
+
+/** 将区间选择器的 Date 值同步到 query，格式化为接口要求的 yyyy-MM-ddTHH:mm:ss */
 function syncRanges() {
-  query.openTimeFrom = openTimeRange.value?.[0]
-  query.openTimeTo = openTimeRange.value?.[1]
-  query.createdAtFrom = createdAtRange.value?.[0]
-  query.createdAtTo = createdAtRange.value?.[1]
+  query.openTimeFrom = openTimeRange.value?.[0] ? formatToLocalDateTime(openTimeRange.value[0]) : undefined
+  query.openTimeTo = openTimeRange.value?.[1] ? formatToLocalDateTime(openTimeRange.value[1]) : undefined
 }
 
 /** 构造实际请求参数（剔除空值） */
@@ -154,7 +186,6 @@ function onReset() {
   query.orderStatus = ''
   query.orderType = ''
   openTimeRange.value = null
-  createdAtRange.value = null
   pageNum.value = 1
   fetchPage()
 }
@@ -191,6 +222,12 @@ async function onExport() {
           const v = row[c.key]
           if (c.key === 'openTime' || c.key === 'finishTime') {
             return formatDateTime(v as string)
+          }
+          if (c.key === 'orderStatus') {
+            return formatOrderStatus(v as string)
+          }
+          if (c.key === 'orderType') {
+            return formatOrderType(v as string)
           }
           return v ?? ''
         })

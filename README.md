@@ -9,7 +9,7 @@ cacch-enterprise-platform 是 Cacch 公司统一的企业级管理后台基座�
 | 组件 | 版本 | 说明 |
 | --- | --- | --- |
 | Java | 21 LTS | 推荐 Amazon Corretto 21 / Eclipse Temurin 21 |
-| Spring Boot | 4.0.6 | 基于 Jakarta EE 11，核心业务框架 |
+| Spring Boot | 4.0.9 | 基于 Jakarta EE 11，核心业务框架 |
 | Spring Security | 6.x | 认证与权限控制框架，配合 JWT 实现无状态鉴权 |
 | MyBatis-Plus | 3.5.16 | 持久层增强框架，简化 CRUD 开发 |
 | PostgreSQL | 12.22 | 主数据库，x86_64 Linux 环境，GCC 4.8.5 编译 |
@@ -21,7 +21,7 @@ cacch-enterprise-platform 是 Cacch 公司统一的企业级管理后台基座�
 | BCrypt | at.favre.lib 0.10.2 | 用户密码哈希存储 |
 | Hutool | 5.8.x | 通用工具集，简化日期、字符串、加密等重复代码 |
 | PostgreSQL JDBC | 42.7.7 | PostgreSQL JDBC 驱动 |
-| Apache Tomcat | 10.1.x | 生产运行时 Servlet 容器，外部独立部署；本地开发仍用内嵌容器，无需额外安装 |
+| Apache Tomcat | 11.0.x | 生产运行时 Servlet 容器（Jakarta EE 11 / Servlet 6.1），外部独立部署；本地开发仍用内嵌容器，无需额外安装 |
 | Lombok | 1.18.36 | 编译期代码简化工具 |
 | Vue | 3.5.x | 前端框架，组合式 API |
 | Vite | 6.x | 前端构建与开发服务器 |
@@ -42,7 +42,7 @@ cacch-enterprise-platform 是 Cacch 公司统一的企业级管理后台基座�
 ### 3.2 运行环境
 - 操作系统：Linux x86_64（推荐 CentOS 7+ / Rocky Linux 9）
 - JRE：21 LTS
-- Servlet 容器：Apache Tomcat 10.1.x（独立部署，War 包方式），同一 Tomcat 可挂载多个应用，避免每应用启动一个 JVM 进程
+- Servlet 容器：Apache Tomcat 11.0.x（独立部署，War 包方式），同一 Tomcat 可挂载多个应用，避免每应用启动一个 JVM 进程
 - 数据库：PostgreSQL 12.22
 - 缓存：Redis 6.x 及以上，支持集群模式
 - 前端静态资源：Nginx 1.20+，用于托管打包后的 SPA 并反向代理后端接口
@@ -277,7 +277,7 @@ pnpm dev
 - **Service 层**：仅承载**单聚合内**的核心业务逻辑，处理单一业务域的数据操作，不做跨域流程编排，不控制跨服务事务
 - **Mapper 层**：仅做数据库交互，禁止拼接业务逻辑；数据权限条件必须走拦截器，不得在 XML 中手写部门过滤 SQL
 - 所有 DO 与 DTO 转换必须通过 MapStruct 实现，禁止手动 setter/getter 堆砌
-- 禁止使用构造方法与内部类（保持 JDK8 兼容写法），新代码统一使用 Lombok `@Data` / `@Builder`
+- 新代码统一使用 Lombok `@Data` / `@Builder`，避免手工堆砌 getter/setter；构造方法与内部类按需使用，不做 JDK 版本降级约束（本项目基线为 Java 21）
 
 ### 7.2 模块开发规范
 1. 新增业务功能优先按领域归类到对应模块，不得跨模块随意放置代码

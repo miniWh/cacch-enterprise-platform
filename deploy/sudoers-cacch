@@ -1,0 +1,9 @@
+# cacch 部署运维：仅放开 Tomcat 服务管理与 SELinux 上下文修复，免密
+# 安装：sudo cp deploy/sudoers-cacch /etc/sudoers.d/cacch && sudo chmod 440 /etc/sudoers.d/cacch
+#       务必先 sudo visudo -c 校验，语法错误会导致 sudo 完全不可用
+felix ALL=(ALL) NOPASSWD: /usr/bin/systemctl start cacch-tomcat, \
+                          /usr/bin/systemctl stop cacch-tomcat, \
+                          /usr/bin/systemctl restart cacch-tomcat, \
+                          /usr/bin/systemctl status cacch-tomcat, \
+                          /usr/bin/systemctl is-active cacch-tomcat, \
+                          /usr/sbin/restorecon

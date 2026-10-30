@@ -1,0 +1,39 @@
+[Unit]
+Description=Cacch Enterprise Platform (Tomcat 11)
+Documentation=https://10.80.62.200
+After=network.target
+
+[Service]
+Type=forking
+User=felix
+Group=felix
+
+Environment=JAVA_HOME=/usr/lib/jvm/java-21-openjdk
+Environment=CATALINA_HOME=/opt/cacch/tomcat
+Environment=CATALINA_BASE=/opt/cacch/tomcat
+Environment=CATALINA_PID=/opt/cacch/tomcat/tomcat.pid
+
+# 必须显式声明 PIDFile：Type=forking 时 systemd 靠它识别主进程。
+# 缺失时 systemd 会猜错主进程，stop 只能杀掉 startup.sh 的 shell，
+# 真正的 JVM 变成孤儿继续占用 8080，随后自动重启因端口冲突反复失败。
+PIDFile=/opt/cacch/tomcat/tomcat.pid
+
+# 必须显式指定工作目录：systemd 默认 cwd 是 /，felix 无权在 / 下创建 logs，
+# 而 logback 的日志路径是相对路径 ./logs/...，不指定会导致应用日志写入失败。
+# 设为 /opt/cacch 后，日志落到 /opt/cacch/logs/cacch-enterprise.log（符合预期）
+WorkingDirectory=/opt/cacch
+
+ExecStart=/opt/cacch/tomcat/bin/startup.sh
+ExecStop=/opt/cacch/tomcat/bin/shutdown.sh
+
+Restart=on-failure
+RestartSec=15
+SuccessExitStatus=143
+TimeoutStartSec=180
+
+# 限制重启风暴：5 分钟内失败超过 5 次就放弃，避免服务异常时无限重启刷日志
+StartLimitIntervalSec=300
+StartLimitBurst=5
+
+[Install]
+WantedBy=multi-user.target

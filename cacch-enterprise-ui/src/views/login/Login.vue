@@ -50,6 +50,7 @@ import { useRoute, useRouter } from 'vue-router'
 import { ElForm, ElMessage, type FormInstance, type FormRules } from 'element-plus'
 import { User, Lock, Key } from '@element-plus/icons-vue'
 import { getCaptcha } from '../../api/auth'
+import { registerDynamicRoutes } from '../../router'
 import { useAuthStore } from '../../stores/auth'
 
 const router = useRouter()
@@ -92,8 +93,12 @@ async function onSubmit() {
   loading.value = true
   try {
     await auth.login({ ...form })
+    // 跳转前先加载用户信息并注册动态路由：目标路由未注册时会命中兜底路由
+    // 被 matcher 层重定向回登录页，依赖二次导航救回的链路在部分状态下会中断
+    await auth.loadProfile()
+    registerDynamicRoutes()
     const redirect = (route.query.redirect as string) || '/dashboard'
-    router.replace(redirect)
+    await router.replace(redirect)
   } catch (e) {
     ElMessage.error((e as Error).message || '登录失败')
     refreshCaptcha()

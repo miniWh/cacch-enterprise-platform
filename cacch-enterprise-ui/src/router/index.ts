@@ -99,7 +99,8 @@ router.beforeEach(async (to) => {
   try {
     await auth.loadProfile()
     registerDynamicRoutes()
-  } catch {
+  } catch (e) {
+    console.error('【路由】用户信息加载失败，已清除登录态并跳转登录页', e)
     auth.doLogout()
     resetDynamicRoutes()
     return { path: '/login' }

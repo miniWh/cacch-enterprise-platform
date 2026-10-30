@@ -34,8 +34,12 @@
       </template>
     </el-menu>
 
-    <!-- 当前用户 -->
-    <div class="mt-3 flex items-center gap-2.5 border-t border-gray-100 px-2 pt-3">
+    <!-- 当前用户（点击进入个人中心） -->
+    <div
+      class="mt-3 flex cursor-pointer items-center gap-2.5 rounded-lg border-t border-gray-100 px-2 pt-3 transition-colors hover:bg-gray-50"
+      title="进入个人中心"
+      @click="router.push('/profile')"
+    >
       <span
         class="flex h-8 w-8 items-center justify-center rounded-full bg-indigo-100 text-xs font-medium text-indigo-600"
       >
@@ -51,10 +55,11 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import { useAuthStore } from '../../stores/auth'
 
 const route = useRoute()
+const router = useRouter()
 const auth = useAuthStore()
 
 /** 可见菜单（visible=0） */

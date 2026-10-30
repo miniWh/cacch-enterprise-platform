@@ -30,7 +30,15 @@ const routes: RouteRecordRaw[] = [
     path: '/',
     name: 'layout',
     component: () => import('../layout/BasicLayout.vue'),
-    children: []
+    children: [
+      // 个人中心：平台级固定页，静态注册（不依赖菜单数据，隐藏菜单后深链仍可直达）
+      {
+        path: 'profile',
+        name: 'profile',
+        component: () => import('../views/profile/Profile.vue'),
+        meta: { title: '个人中心' }
+      }
+    ]
   },
   // 兜底不得 redirect 到动态路由：matcher 层解析先于守卫执行，
   // 动态路由未注册时会形成 redirect 自环导致栈溢出；/login 为静态路由，安全
@@ -56,6 +64,8 @@ export function registerDynamicRoutes() {
 
   const walk = (nodes: typeof auth.menus) => {
     for (const menu of nodes) {
+      // 隐藏菜单不注册路由（visible=1 仅保留数据用于权限收集与菜单管理）
+      if (menu.visible === 1) continue
       if (menu.menuType === 'D') {
         walk(menu.children ?? [])
         continue

@@ -34,5 +34,9 @@ cacch:
     access-token-expire: 43200
     refresh-token-expire: 43200
     login-channel-policy: KICK_OUT
+  wecom:
+    corpid: ww0ae0c799548c75bd     # 企业微信企业 ID，生产环境须外置注入
+    agent-id: 1000037                               # 自建应用 AgentId
+    secret: KwWwvZ1NoYNnGQ6nGHQrzl2VGrq251kDg9EJYydPZ_s     # 自建应用 Secret，禁止硬编码，须外置注入
   cors:
     allowed-origins: https://your-prod-domain

@@ -59,6 +59,7 @@ public class SecurityConfiguration {
                         .requestMatchers(
                                 AuthPathConstants.PATH_CAPTCHA,
                                 AuthPathConstants.PATH_LOGIN,
+                                AuthPathConstants.PATH_WECOM_INAPP_LOGIN,
                                 AuthPathConstants.PATH_REFRESH).permitAll()
                         .anyRequest().authenticated())
                 .exceptionHandling(handler -> handler

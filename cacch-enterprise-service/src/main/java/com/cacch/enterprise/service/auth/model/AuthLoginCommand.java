@@ -32,4 +32,9 @@ public class AuthLoginCommand implements Serializable {
      * 登录来源 IP
      */
     private String loginIp;
+
+    /**
+     * 企微授权码（仅 WECOM_INAPP 渠道使用），由企微工作台打开应用主页 URL 时携带，一次性有效
+     */
+    private String code;
 }

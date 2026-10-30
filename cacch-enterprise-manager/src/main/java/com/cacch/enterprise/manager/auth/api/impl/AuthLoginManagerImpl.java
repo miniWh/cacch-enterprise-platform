@@ -81,13 +81,39 @@ public class AuthLoginManagerImpl implements IAuthLoginManager {
         try {
             user = channel.authenticate(command);
         } catch (BizException e) {
-            publishLoginEvent(false, command, null, e.getMessage());
+            publishLoginEvent(false, AuthChannelEnum.PASSWORD, command, null, e.getMessage());
             throw e;
         }
         LoginUser loginUser = buildLoginUser(user, command.getLoginIp());
         TokenPairModel tokens = issueTokens(loginUser);
-        publishLoginEvent(true, command, user.getId(), null);
+        publishLoginEvent(true, AuthChannelEnum.PASSWORD, command, user.getId(), null);
         log.info("【AuthLogin】登录成功，userId={}, username={}, ip={}", user.getId(), user.getUsername(), command.getLoginIp());
+        return tokens;
+    }
+
+    /**
+     * 企业微信自建应用免登编排（不走验证码与 IP 限流）
+     *
+     * @param code    企微一次性授权码
+     * @param loginIp 登录来源 IP
+     * @return 双令牌对
+     * @throws BizException 授权码无效、企微账号未绑定、账号停用时抛出
+     */
+    @Override
+    public TokenPairModel loginByWecom(String code, String loginIp) {
+        IAuthChannelService channel = resolveChannel(AuthChannelEnum.WECOM_INAPP);
+        AuthLoginCommand command = AuthLoginCommand.builder().code(code).loginIp(loginIp).build();
+        SysUserDO user;
+        try {
+            user = channel.authenticate(command);
+        } catch (BizException e) {
+            publishLoginEvent(false, AuthChannelEnum.WECOM_INAPP, command, null, e.getMessage());
+            throw e;
+        }
+        LoginUser loginUser = buildLoginUser(user, loginIp);
+        TokenPairModel tokens = issueTokens(loginUser);
+        publishLoginEvent(true, AuthChannelEnum.WECOM_INAPP, command, user.getId(), null);
+        log.info("【AuthLogin】企微免登成功，userId={}, username={}, ip={}", user.getId(), user.getUsername(), loginIp);
         return tokens;
     }
 
@@ -364,14 +390,15 @@ public class AuthLoginManagerImpl implements IAuthLoginManager {
      * 发布登录事件（成功/失败统一），事件异步消费
      *
      * @param success    是否成功
+     * @param channel    登录渠道
      * @param command    登录命令
      * @param userId     用户 ID（失败且账号不存在时为 null）
      * @param failReason 失败原因（成功时为 null）
      */
-    private void publishLoginEvent(boolean success, AuthLoginCommand command, Long userId, String failReason) {
+    private void publishLoginEvent(boolean success, AuthChannelEnum channel, AuthLoginCommand command, Long userId, String failReason) {
         eventPublisher.publishEvent(AuthLoginEvent.builder()
                 .success(success)
-                .channel(AuthChannelEnum.PASSWORD)
+                .channel(channel)
                 .userId(userId)
                 .account(command.getAccount())
                 .loginIp(command.getLoginIp())

@@ -141,6 +141,11 @@ public enum ResultCode {
     AUTH_REFRESH_INVALID(40108, "登录已过期，请重新登录"),
 
     /**
+     * 企微账号未绑定管理平台用户
+     */
+    AUTH_WECOM_NOT_BOUND(40109, "您的企微账号尚未绑定管理平台账号，请联系管理员"),
+
+    /**
      * 没有该操作的权限
      */
     AUTH_PERMISSION_DENIED(40300, "没有操作权限"),

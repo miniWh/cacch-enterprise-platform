@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
@@ -64,6 +65,21 @@ public class AuthLoginController {
                                       HttpServletRequest servletRequest) {
         var command = authLoginConverter.toCommand(request, resolveClientIp(servletRequest));
         var tokens = authLoginManager.login(command, request.getCaptchaId(), request.getCaptchaCode());
+        return Result.success(authLoginConverter.toTokenVO(tokens));
+    }
+
+    /**
+     * 企业微信自建应用免登（通过企微授权码换取双令牌，不走验证码与限流）
+     *
+     * @param code           企微一次性授权码，由企微工作台打开应用主页 URL 时携带
+     * @param servletRequest HTTP 请求（取客户端 IP 做登录留痕）
+     * @return 双令牌对
+     * @throws BizException 授权码无效（40002）、企微账号未绑定（40109）、账号停用（40103）时抛出
+     */
+    @GetMapping("/wecom/inapp/login")
+    public Result<LoginTokenVO> wecomInAppLogin(@RequestParam String code,
+                                                HttpServletRequest servletRequest) {
+        var tokens = authLoginManager.loginByWecom(code, resolveClientIp(servletRequest));
         return Result.success(authLoginConverter.toTokenVO(tokens));
     }
 

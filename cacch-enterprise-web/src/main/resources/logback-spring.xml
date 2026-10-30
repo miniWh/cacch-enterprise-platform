@@ -5,8 +5,11 @@
     <property name="LOG_PATTERN"
               value="%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] [traceId:%X{traceId:-}] %-5level %logger{50} [%file:%line] - %msg%n"/>
 
-    <!-- 日志文件路径与滚动策略参数：必须显式定义（logback 1.6 起未定义变量为致命错误） -->
-    <property name="LOG_FILE" value="./logs/cacch-enterprise"/>
+    <!-- 日志文件路径与滚动策略参数：必须显式定义（logback 1.6 起未定义变量为致命错误）
+         日志目录支持由 JVM 参数 -DLOG_HOME 覆盖（如 -DLOG_HOME=/opt/cacch/logs），
+         未指定时回退到相对路径 ./logs，避免在不同工作目录下日志落点漂移 -->
+    <property name="LOG_HOME" value="${LOG_HOME:-./logs}"/>
+    <property name="LOG_FILE" value="${LOG_HOME}/cacch-enterprise"/>
     <property name="MAX_HISTORY" value="30"/>
     <property name="MAX_FILE_SIZE" value="100MB"/>
     <property name="TOTAL_SIZE_CAP" value="10GB"/>
@@ -45,9 +48,15 @@
 
     <!-- ========== 生产环境（spring.profiles.active=prod） ========== -->
     <springProfile name="prod">
-        <logger name="com.cacch.integration" level="INFO"/>
+        <!-- 业务包必须留 INFO：此前 prod 下只有 WARN，导致启动完成、请求、业务关键流程全不可见，
+             线上排障只能靠猜。第三方库噪音仍由 root=WARN 过滤 -->
+        <logger name="com.cacch.enterprise" level="INFO"/>
+        <!-- 仅放开 Spring Boot 启动信息（Started ... / profile 等），不放开整个 org.springframework -->
+        <logger name="org.springframework.boot.StartupInfoLogger" level="INFO"/>
+        <logger name="org.springframework.boot.SpringApplication" level="INFO"/>
 
         <root level="WARN">
+            <appender-ref ref="CONSOLE"/>
             <appender-ref ref="FILE"/>
         </root>
     </springProfile>

@@ -41,4 +41,9 @@ public final class AuthPathConstants {
      * 修改密码（个人中心）
      */
     public static final String PATH_PROFILE_PASSWORD = "/api/v1/auth/profile/password";
+
+    /**
+     * 企业微信自建应用免登（通过授权码换取双令牌）
+     */
+    public static final String PATH_WECOM_INAPP_LOGIN = "/api/v1/auth/wecom/inapp/login";
 }

@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
-import { changePassword, getProfile, login as loginApi, logout as logoutApi, type MenuVO, type UserProfileVO } from '../api/auth'
+import { changePassword, getProfile, login as loginApi, logout as logoutApi, wecomInAppLogin, type MenuVO, type UserProfileVO } from '../api/auth'
 import { clearTokens } from '../api/http'
 
 /**
@@ -18,6 +18,17 @@ export const useAuthStore = defineStore('auth', () => {
    */
   async function login(form: { account: string; password: string; captchaId: string; captchaCode: string }) {
     const tokens = await loginApi(form)
+    localStorage.setItem('access_token', tokens.accessToken)
+    localStorage.setItem('refresh_token', tokens.refreshToken)
+    profile.value = null
+    loaded.value = false
+  }
+
+  /**
+   * 企业微信自建应用免登（通过企微授权码换取并保存令牌）
+   */
+  async function wecomLogin(code: string) {
+    const tokens = await wecomInAppLogin(code)
     localStorage.setItem('access_token', tokens.accessToken)
     localStorage.setItem('refresh_token', tokens.refreshToken)
     profile.value = null
@@ -65,5 +76,5 @@ export const useAuthStore = defineStore('auth', () => {
     return perms.includes('*') || perms.includes(perm)
   }
 
-  return { profile, menus, loaded, login, loadProfile, changePwd, logout, doLogout, hasPerm }
+  return { profile, menus, loaded, login, wecomLogin, loadProfile, changePwd, logout, doLogout, hasPerm }
 })

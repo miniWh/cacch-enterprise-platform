@@ -8,7 +8,8 @@ import org.springframework.boot.web.servlet.support.SpringBootServletInitializer
 /**
  * 企业管理平台启动类
  *
- * <p>本地开发：main 方法启动（内嵌容器，无需安装 Tomcat）；生产：War 包部署外部 Tomcat 10.1.x。
+ * <p>本地开发：main 方法启动（内嵌容器，无需安装 Tomcat）；生产：War 包部署外部 Tomcat 11.0.x
+ * （Spring Boot 4 基于 Jakarta EE 11 / Servlet 6.1，须使用 Tomcat 11，10.1.x 仅支持 Servlet 6.0 不兼容）。
  * 继承 {@link SpringBootServletInitializer} 以支持外部 Tomcat War 部署。
  *
  * @author hongfu_zhou@cacch.com

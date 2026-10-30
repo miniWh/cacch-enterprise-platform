@@ -56,6 +56,18 @@ public class SysUserServiceImpl implements ISysUserService {
     }
 
     /**
+     * 按企微 UserId 查询用户（仅未删除）
+     *
+     * @param wecomUserid 企微用户唯一标识
+     * @return 用户实体；不存在时返回 null
+     */
+    @Override
+    public SysUserDO getByWecomUserid(String wecomUserid) {
+        return sysUserMapper.selectOne(new LambdaQueryWrapper<SysUserDO>()
+                .eq(SysUserDO::getWecomUserid, wecomUserid));
+    }
+
+    /**
      * 按 ID 查询用户（仅未删除）
      *
      * @param userId 用户主键

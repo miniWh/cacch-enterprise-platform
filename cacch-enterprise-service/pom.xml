@@ -23,6 +23,11 @@
 
         <dependency>
             <groupId>com.cacch</groupId>
+            <artifactId>cacch-enterprise-integration</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.cacch</groupId>
             <artifactId>cacch-enterprise-common</artifactId>
         </dependency>
 

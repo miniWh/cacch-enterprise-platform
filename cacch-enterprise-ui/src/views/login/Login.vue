@@ -1,6 +1,6 @@
 <template>
   <div class="flex min-h-screen items-center justify-center bg-gradient-to-br from-indigo-50 via-white to-violet-50">
-    <div class="w-[400px] rounded-2xl border border-gray-100 bg-white p-8 shadow-lg">
+    <div v-loading="wecomLoading" element-loading-text="企微免登中..." class="w-[400px] rounded-2xl border border-gray-100 bg-white p-8 shadow-lg">
       <div class="flex flex-col items-center">
         <img src="../../assets/logo-cac-group.png" alt="泰禾集团" class="h-12 w-auto" />
         <h1 class="mt-4 text-xl font-semibold text-gray-900">Cacch 企业管理平台</h1>
@@ -59,6 +59,7 @@ const auth = useAuthStore()
 
 const formRef = ref<FormInstance>()
 const loading = ref(false)
+const wecomLoading = ref(false)
 const captchaUrl = ref('')
 
 const form = reactive({
@@ -107,5 +108,34 @@ async function onSubmit() {
   }
 }
 
-onMounted(refreshCaptcha)
+/** 企业微信自建应用免登：检测 URL 中的 code 参数，自动换取令牌并进入系统 */
+async function tryWecomInAppLogin() {
+  const code = route.query.code as string
+  if (!code) return
+  wecomLoading.value = true
+  try {
+    await auth.wecomLogin(code)
+    await auth.loadProfile()
+    registerDynamicRoutes()
+    const redirect = (route.query.redirect as string) || '/dashboard'
+    // 清除 URL 中的 code 与 redirect，避免刷新重复触发免登
+    await router.replace({ path: '/login', query: {} })
+    await router.replace(redirect)
+  } catch (e) {
+    // 免登失败（未绑定/授权码失效等）：保留登录页供手动登录，提示用户
+    ElMessage.error((e as Error).message || '企微免登失败，请使用账号密码登录')
+    // 清除 URL 中的 code，避免刷新重复触发
+    router.replace({ path: '/login', query: {} })
+  } finally {
+    wecomLoading.value = false
+  }
+}
+
+onMounted(async () => {
+  await tryWecomInAppLogin()
+  // 非企微免登场景或免登失败时加载验证码，供手动登录使用
+  if (!wecomLoading.value) {
+    refreshCaptcha()
+  }
+})
 </script>

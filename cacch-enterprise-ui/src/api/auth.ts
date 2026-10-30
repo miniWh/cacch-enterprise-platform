@@ -52,6 +52,11 @@ export function login(data: { account: string; password: string; captchaId: stri
   return http.post<ApiResult<LoginTokenVO>>('/v1/auth/login', data).then((r) => r.data.data)
 }
 
+/** 企业微信自建应用免登（通过企微授权码换取双令牌） */
+export function wecomInAppLogin(code: string) {
+  return http.get<ApiResult<LoginTokenVO>>(`/v1/auth/wecom/inapp/login?code=${encodeURIComponent(code)}`).then((r) => r.data.data)
+}
+
 /** 登出 */
 export function logout() {
   return http.post<ApiResult<void>>('/v1/auth/logout').then((r) => r.data)

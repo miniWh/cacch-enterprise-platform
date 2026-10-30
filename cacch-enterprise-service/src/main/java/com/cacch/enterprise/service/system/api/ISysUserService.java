@@ -30,6 +30,14 @@ public interface ISysUserService {
     SysUserDO getByPhone(String phone);
 
     /**
+     * 按企微 UserId 查询用户（仅未删除）
+     *
+     * @param wecomUserid 企微用户唯一标识，自建应用免登绑定依据
+     * @return 用户实体；不存在时返回 null
+     */
+    SysUserDO getByWecomUserid(String wecomUserid);
+
+    /**
      * 按 ID 查询用户（仅未删除）
      *
      * @param userId 用户主键

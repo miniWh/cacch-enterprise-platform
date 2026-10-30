@@ -32,6 +32,19 @@ public interface IAuthLoginManager {
     TokenPairModel login(AuthLoginCommand command, String captchaId, String captchaCode);
 
     /**
+     * 企业微信自建应用免登编排
+     *
+     * <p>流程：企微授权码认证（不走验证码/限流）→ 构建登录上下文
+     * → 写入 Redis 登录态（KICK_OUT 互踢）→ 签发双令牌 → 发布登录事件。
+     *
+     * @param code    企微一次性授权码，由企微工作台打开应用主页 URL 时携带
+     * @param loginIp 登录来源 IP
+     * @return 双令牌对
+     * @throws BizException 授权码无效（40002）、企微账号未绑定（40109）、账号停用（40103）时抛出
+     */
+    TokenPairModel loginByWecom(String code, String loginIp);
+
+    /**
      * 静默刷新双令牌（轮换：旧 refresh 立即失效）
      *
      * @param refreshToken 刷新令牌

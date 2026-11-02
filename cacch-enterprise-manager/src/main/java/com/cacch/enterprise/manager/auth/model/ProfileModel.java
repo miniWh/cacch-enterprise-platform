@@ -27,4 +27,9 @@ public class ProfileModel implements Serializable {
      * 用户权限模型（菜单扁平列表 + 权限标识集合）
      */
     private UserPermissionModel permission;
+
+    /**
+     * 是否超级管理员（绑定 SUPER_ADMIN 启用角色，实时查库判定，不受权限缓存影响）
+     */
+    private boolean superAdmin;
 }

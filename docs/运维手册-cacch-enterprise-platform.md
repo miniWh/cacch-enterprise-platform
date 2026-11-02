@@ -24,10 +24,11 @@
   - [3.1 服务启停](#sec-3-1)
   - [3.2 改了 Nginx 配置](#sec-3-2)
   - [3.3 查看日志](#sec-3-3)
-  - [3.4 后端发版](#sec-3-4)
+  - [3.4 后端发版（服务器构建）](#sec-3-4)
   - [3.5 后端发版（本地构建上传，推荐日常使用）](#sec-3-5)
   - [3.6 前端发版](#sec-3-6)
   - [3.7 回滚](#sec-3-7)
+  - [3.8 静态资源缓存策略](#sec-3-8)
 - [四、健康检查](#sec-4)
   - [4.1 一键体检](#sec-4-1)
   - [4.2 外部依赖连通性](#sec-4-2)
@@ -139,9 +140,16 @@
 ├── config/application-prod.yml    ★ 外置生产配置（权限 600，含 jwt-secret）
 ├── ui/dist/                       前端静态资源
 ├── src/                           后端源码（服务器侧构建用）
+│   └── deploy.sh                  ★ 发版脚本（运维最新版，见 3.4）
+├── backups/                       ★ 发版自动备份的 War（保留最近 5 份，见 3.7）
+├── staging/                       本地构建上传的 War 暂存目录（见 3.5）
+├── install-war.sh                 ★ 安装脚本（本地构建方式用，见 3.5）
+├── rollback.sh                    ★ 回滚脚本（见 3.7）
 ├── logs/cacch-enterprise.log      ★ 应用业务日志
 └── maven/                         Maven 3.9.16
 ```
+
+> `src/deploy/deploy.sh` 是源码包内的同名副本，发版请固定用上面的 `src/deploy.sh`（见 3.4 的提醒）。
 
 [↑ 返回顶部](#top)
 
@@ -233,8 +241,12 @@ grep '【Auth' /opt/cacch/logs/cacch-enterprise.log | tail -20
 
 [↑ 返回顶部](#top)
 
-### 3.4 后端发版
+### 3.4 后端发版（服务器构建）
 <a id="sec-3-4"></a>
+
+> **执行位置：服务器**（SSH 登录 10.80.62.200 后执行）。
+> 本节的 `/opt/...` 都是 Linux 服务器路径，**不是本地路径**。
+> 日常发版更推荐 3.5（本地构建上传）；本节用于**依赖变更**，或直接在服务器上改代码的场景。
 
 > **发版前先判断：这次改没改 `pom.xml` 的依赖？** 这是 Skinny War 模式下最容易踩的坑。
 
@@ -247,11 +259,16 @@ cd /opt/cacch/src
 cd /opt/cacch/src
 /opt/cacch/maven/bin/mvn clean package -DskipTests -Dmdep.skip=true
 
-# 部署（脚本已封装，会自动改名 ROOT.war 并重启）
-bash /opt/cacch/src/deploy/deploy.sh
+# 部署（脚本已封装：自动备份 → 改名 ROOT.war → 走 systemd 重启）
+bash /opt/cacch/src/deploy.sh
 ```
 
-产物约 **120 KB**（依赖已外置到 `tomcat/lib`），上传与打包都很快。
+产物约 **120 KB**（依赖已外置到 `tomcat/lib`），打包很快。
+
+> ⚠️ **认准脚本路径**：请用 `/opt/cacch/src/deploy.sh`（运维最新版：含发版前自动备份、
+> 强制走 systemd、端口预检）。源码包内的 `src/deploy/deploy.sh` 是**同名副本**，重新上传
+> 源码包会把它覆盖回旧版——旧版既没有自动备份，又可能 fallback 到 `startup.sh` 直启，
+> 会再次触发 8.1 第 7 条的游离 JVM 问题。两者内容当前已同步，但发版请固定用 `src/deploy.sh`。
 
 **手工部署等价步骤：**
 
@@ -266,6 +283,9 @@ sudo systemctl start cacch-tomcat
 
 ### 3.5 后端发版（本地构建上传，推荐日常使用）
 <a id="sec-3-5"></a>
+
+> **执行位置：本地**（项目根目录执行 `bash deploy/07-build-local-backend.sh`，
+> 脚本内部完成构建、上传，并调用服务器上的 `/opt/cacch/install-war.sh` 安装）。
 
 后端同样可以**本地构建、只上传产物**，不占用服务器 2 核 3.5G 的 CPU/内存：
 
@@ -295,12 +315,14 @@ bash deploy/07-build-local-backend.sh --build-only   # 只构建，不上传
 
 > ⚠️ 本地构建**跳过了依赖导出**（`-Dmdep.skip=true`），Skinny War 的依赖仍在服务器
 > `/opt/cacch/tomcat/lib`。因此**改了 `pom.xml` 依赖时不要走本地构建**，请在服务器执行
-> `deploy.sh --full` 重新同步依赖，否则会 `NoClassDefFoundError`。
+> `bash /opt/cacch/src/deploy.sh --full` 重新同步依赖，否则会 `NoClassDefFoundError`。
 
 [↑ 返回顶部](#top)
 
 ### 3.6 前端发版
 <a id="sec-3-6"></a>
+
+> **执行位置：本地**（项目根目录执行，脚本内部再 scp 到服务器）。
 
 前端在**本地**构建（服务器只有 2 核，本地更快也不抢内存）：
 
@@ -321,12 +343,14 @@ ssh felix@10.80.62.200 'sudo restorecon -R /opt/cacch/ui/dist'   # SELinux，必
 ### 3.7 回滚
 <a id="sec-3-7"></a>
 
+> **执行位置：服务器**（SSH 登录 10.80.62.200 后执行）。
+
 `deploy.sh` 发版时**会自动备份旧包**到 `/opt/cacch/backups/ROOT.war.<时间戳>`，保留最近 5 份。回滚走专用脚本：
 
 ```bash
-bash deploy/rollback.sh list        # 列出可用备份（新→旧）
-bash deploy/rollback.sh             # 回滚到最近一份（会二次确认）
-bash deploy/rollback.sh ROOT.war.20261030_142000   # 回滚到指定备份
+bash /opt/cacch/rollback.sh list        # 列出可用备份（新→旧）
+bash /opt/cacch/rollback.sh             # 回滚到最近一份（会二次确认）
+bash /opt/cacch/rollback.sh ROOT.war.20261030_145636   # 回滚到指定备份
 ```
 
 手工等价步骤：
@@ -339,6 +363,42 @@ sudo systemctl start cacch-tomcat
 ```
 
 > ⚠️ 备份目录 `/opt/cacch/backups` 位于本机同盘。若需防范主机故障，重要版本请另行异地保存。
+
+[↑ 返回顶部](#top)
+
+### 3.8 静态资源缓存策略
+<a id="sec-3-8"></a>
+
+> **执行位置：服务器**（配置在 `/etc/nginx/conf.d/cacch.conf`，已配好；
+> 改动后必须 `sudo nginx -t` 再 `sudo systemctl reload nginx`）。
+
+| 资源 | 缓存策略 | 原因 |
+| --- | --- | --- |
+| `/`、`/index.html`、SPA 回退页（`/login` 等） | `no-cache, no-store, must-revalidate` | 入口页必须每次拿最新，否则会引用**已删除的旧 hash 资源**导致 404、前端起不来 |
+| `/assets/**`（文件名带 hash） | `public, max-age=31536000, immutable` | 内容一变文件名就变，可安全长缓存 |
+| 其他静态资源（`favicon.png` 等，无 hash） | 7 天 | 文件名不变，不能长缓存 |
+
+两段关键配置（**注意 `^~` 不能少**）：
+
+```nginx
+# 入口 HTML 永不缓存
+location = / {
+    add_header Cache-Control "no-cache, no-store, must-revalidate";
+}
+location = /index.html {
+    add_header Cache-Control "no-cache, no-store, must-revalidate";
+}
+
+# 带 hash 的构建产物长缓存；^~ 使其优先于下面的正则 location，否则本段不生效
+location ^~ /assets/ {
+    add_header Cache-Control "public, max-age=31536000, immutable";
+    try_files $uri =404;
+}
+```
+
+> ⚠️ **发版后建议通知用户 Ctrl+F5 硬刷新一次**：已经缓存了旧 `index.html` 的浏览器
+> 不受新配置影响（旧响应没有 `Cache-Control`，浏览器按启发式策略仍会直接命中缓存），
+> 必须手动刷新一次才会重新拉取入口页；之后的访问就自动保持最新了。
 
 [↑ 返回顶部](#top)
 
@@ -430,6 +490,10 @@ PGPASSWORD='esb' psql -h 10.80.86.93 -U esb -d cdb -tAc \
 | 12 | 客如云订单页无数据 | 集成平台不可达 | 测 `10.80.68.10:8081` 连通性；看 Nginx error 日志 |
 | 13 | **接口能访问，但 `systemctl status` 显示 `activating (auto-restart)` / `Result: exit-code`** | **出现了游离 JVM**：有人用 `startup.sh` 直接启动，绕开了 systemd。该进程占着 8080，systemd 每次自动重启都因端口冲突失败 | `ss -lntp \| grep 8080` 找到 PID；与 `systemctl show cacch-tomcat -p MainPID --value` 比对，不一致即为游离进程。`sudo systemctl stop cacch-tomcat` 后 `kill -9 <游离PID>`，确认 8080 释放再用 `systemctl start`。**永远只用 systemctl 启停** |
 | 14 | `systemctl stop` 后进程仍在 | 服务单元缺少 `PIDFile`，systemd 杀错进程 | 确认 `cacch-tomcat.service` 含 `PIDFile=/opt/cacch/tomcat/tomcat.pid`（已修复），改后 `sudo systemctl daemon-reload` |
+| 15 | **发版后页面卡死/一直 loading，后端日志里完全没有该请求，清缓存或换浏览器就恢复** | 浏览器缓存了旧 `index.html`，其引用的旧 hash 资源已被删除 → 请求返回 **404** → 前端 JS 根本没加载 → **API 请求从未发出**（所以后端无日志） | 已修：入口 HTML 下发 `no-cache`（见 3.8）。**已被污染的客户端需 Ctrl+F5 硬刷新一次**才会恢复，配置只对之后的请求生效 |
+| 16 | 加了 `location /assets/` 缓存规则却不生效 | 普通前缀匹配的优先级**低于**正则 `location ~* \.(js\|css\|...)$` | 必须写成 `location ^~ /assets/`，否则被正则 location 抢走，策略静默失效 |
+| 17 | **登录成功后页面卡死、一直 loading（像请求超时），强刷/清缓存全部无效**；access log 显示 `login`、`profile` 均为 200，但之后**再无任何请求** | 该账号菜单里**没有 `/dashboard`**，登录后跳转这个未注册路径 → 命中兜底 `redirect /login` → 守卫又回跳 `/dashboard` → **无限自环、栈溢出** | 已修：落地页改为动态取用户第一个可用菜单（`defaultLandingPath()`），无菜单时落静态页 `/profile`。排查命令：`sudo grep -E 'auth/login\|auth/profile' /var/log/nginx/cacch-access.log`（注意需 sudo，日志属 root:nginx） |
+| 18 | 换账号登录后菜单不对 / 同样卡死 | 退出登录只做了路由跳转，**未刷新页面**，动态路由注册是一次性的（`dynamicAdded`），仍沿用上一个账号的菜单 | 已修：退出登录改为整页刷新（hash 置 `#/login` 后 `reload()`） |
 
 ### 5.1 排查速查命令
 <a id="sec-5-1"></a>
@@ -505,6 +569,17 @@ pg_dump -h 10.80.86.93 -U esb -n enterprise -Fc -f enterprise_$(date +%Y%m%d).du
 7. **部署脚本绝不能 fallback 到 `startup.sh` 直启**。会拉起游离 JVM（PPID=1）占住 8080，systemd 之后的每次自动重启都因端口冲突失败，表现为"接口正常但服务在崩溃循环"。判断 systemd 是否托管要看 unit 文件是否存在，**不要**用 `systemctl list-unit-files | grep`（非交互环境下可能失败导致误判）。
 8. **`Type=forking` 必须配 `PIDFile`**，否则 systemd 认错主进程，`stop` 只杀掉 startup.sh 的 shell，真正的 JVM 变孤儿存活。
 9. **sudo 需要密码会让部署脚本卡住或静默走错分支**。已通过 `deploy/sudoers-cacch` 放开 felix 对 Tomcat 服务与 `restorecon` 的免密（限定命令，非 ALL）。
+10. **入口 HTML 不下发 `Cache-Control` 会触发浏览器启发式缓存**：发版后用户仍拿着旧 `index.html`，
+    去请求已删除的旧 hash 资源 → 404 → 前端 JS 加载失败 → 页面卡死，且**后端完全没有日志**
+    （请求压根没发出）。入口页必须 `no-cache`；带 hash 的 `/assets/` 才能 `immutable` 长缓存。
+11. **`location /assets/` 必须写成 `^~ /assets/`**：Nginx 中普通前缀匹配的优先级低于正则
+    `location ~* \.(js|css|...)$`，不加 `^~` 会被正则抢走，缓存策略静默失效（不报错，很难发现）。
+12. **登录后落地页绝不能硬编码 `/dashboard`**：用户未被分配该菜单时路径未注册，会与兜底路由
+    `redirect /login` 形成 redirect 自环 → 栈溢出 → 页面彻底卡死。表象极像"后端请求超时"，
+    但后端日志与 access log 都显示 login/profile 全部 200，极具迷惑性。
+    落地页应按用户实际菜单动态计算，并保留一个静态页兜底。
+13. **退出登录必须整页刷新**：动态路由注册是一次性的，仅 `router.replace('/login')` 不会清除
+    上一个账号已注册的菜单，换账号登录后会沿用旧菜单，同样触发上述自环。
 
 [↑ 返回顶部](#top)
 
@@ -528,10 +603,11 @@ pg_dump -h 10.80.86.93 -U esb -n enterprise -Fc -f enterprise_$(date +%Y%m%d).du
 
 - 部署方案：`docs/部署方案-10.80.62.200.md`
 - 部署脚本：`deploy/01` ~ `06`
-- 本地构建上传发版：`deploy/07-build-local-backend.sh`（本地）+ `deploy/install-war.sh`（服务器）
-- 免密 sudo 配置：`deploy/sudoers-cacch`
-- 日常发版：`deploy/deploy.sh`（含自动备份）
-- 回滚：`deploy/rollback.sh`
+- 本地构建上传发版：`deploy/07-build-local-backend.sh`（本地）+ 服务器 `/opt/cacch/install-war.sh`
+- 免密 sudo 配置：`deploy/sudoers-cacch` → 服务器 `/etc/sudoers.d/cacch`
+- 服务器发版：服务器 `/opt/cacch/src/deploy.sh`（含自动备份，`--full` 用于同步依赖）
+- 回滚：服务器 `/opt/cacch/rollback.sh`（由 `deploy/rollback.sh` 上传而来）
+- 服务单元：`deploy/cacch-tomcat.service` → 服务器 `/etc/systemd/system/cacch-tomcat.service`
 - 项目说明：`README.md`
 
 [↑ 返回顶部](#top)

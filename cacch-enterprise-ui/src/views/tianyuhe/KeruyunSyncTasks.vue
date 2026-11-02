@@ -46,10 +46,14 @@
         </el-table-column>
         <el-table-column prop="retryCount" label="重试次数" width="90" align="right" />
         <el-table-column label="创建时间" width="170">
-          <template #default="{ row }">{{ formatDateTime(row.createdAt) }}</template>
+          <template #default="{ row }">
+            <span class="whitespace-nowrap">{{ formatDateTime(row.createdAt) }}</span>
+          </template>
         </el-table-column>
         <el-table-column label="完成时间" width="170">
-          <template #default="{ row }">{{ formatDateTime(row.syncedAt) }}</template>
+          <template #default="{ row }">
+            <span class="whitespace-nowrap">{{ formatDateTime(row.syncedAt) }}</span>
+          </template>
         </el-table-column>
         <el-table-column prop="errorMessage" label="失败原因" min-width="200" show-overflow-tooltip>
           <template #default="{ row }">{{ row.errorMessage || '-' }}</template>
@@ -117,9 +121,10 @@ function isTerminalStatus(status: KeruyunSyncTaskStatus): boolean {
 }
 
 // ---------- 时间格式化 ----------
+/** ISO 时间转 yyyy-MM-dd HH:mm:ss（去除 T 分隔与小数秒） */
 function formatDateTime(value?: string): string {
   if (!value) return '-'
-  return value.replace('T', ' ')
+  return value.replace('T', ' ').replace(/\.\d+$/, '')
 }
 
 /** 将 Date 格式化为 yyyy-MM-ddTHH:mm:ss */

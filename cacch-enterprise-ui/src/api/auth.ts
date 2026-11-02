@@ -40,6 +40,8 @@ export interface UserProfileVO {
   status: number
   menus: MenuVO[]
   perms: string[]
+  /** 是否超级管理员（后端实时查角色表判定，不受权限缓存影响） */
+  superAdmin?: boolean
 }
 
 /** 获取图形验证码 */
@@ -70,4 +72,9 @@ export function getProfile() {
 /** 修改密码 */
 export function changePassword(data: { oldPassword: string; newPassword: string }) {
   return http.put<ApiResult<void>>('/v1/auth/profile/password', data).then((r) => r.data)
+}
+
+/** 刷新当前用户的权限缓存（清除 Redis 菜单与权限标识缓存，下次请求回源重建） */
+export function refreshPermissionCache() {
+  return http.post<ApiResult<void>>('/v1/auth/permission/refresh').then((r) => r.data)
 }

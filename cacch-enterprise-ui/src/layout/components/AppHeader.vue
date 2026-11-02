@@ -16,6 +16,7 @@
           <template #dropdown>
             <el-dropdown-menu>
               <el-dropdown-item command="profile">个人中心</el-dropdown-item>
+              <el-dropdown-item v-if="isSuperAdmin" command="refreshCache">刷新缓存</el-dropdown-item>
               <el-dropdown-item divided command="logout">退出登录</el-dropdown-item>
             </el-dropdown-menu>
           </template>
@@ -28,8 +29,10 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import { ElMessage } from 'element-plus'
 import BaseIcon from '../../components/BaseIcon.vue'
 import { useAuthStore } from '../../stores/auth'
+import { refreshPermissionCache } from '../../api/auth'
 
 const route = useRoute()
 const router = useRouter()
@@ -44,10 +47,23 @@ const avatarChar = computed(() => {
   return name ? name.slice(-1) : '-'
 })
 
+/** 是否超级管理员（后端实时查角色表判定的显式标志，不依赖 perms 缓存内容） */
+const isSuperAdmin = computed(() => auth.profile?.superAdmin ?? false)
+
 /** 下拉命令分发 */
 async function onCommand(command: string) {
   if (command === 'profile') {
     router.push('/profile')
+  } else if (command === 'refreshCache') {
+    try {
+      await refreshPermissionCache()
+      await auth.loadProfile(true)
+      ElMessage.success('权限缓存已刷新，页面即将重载')
+      // 整页刷新以重建动态路由（菜单变更后需重新注册路由）
+      setTimeout(() => window.location.reload(), 500)
+    } catch {
+      // 错误已由全局拦截器提示
+    }
   } else if (command === 'logout') {
     await auth.logout()
     // 必须整页刷新：动态路由注册是一次性的（dynamicAdded），仅做路由跳转不会清除

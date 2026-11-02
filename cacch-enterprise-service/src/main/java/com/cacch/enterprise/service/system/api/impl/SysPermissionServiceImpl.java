@@ -51,6 +51,10 @@ public class SysPermissionServiceImpl implements ISysPermissionService {
                 .filter(m -> m.getPerms() != null && !m.getPerms().isBlank())
                 .map(SysMenuDO::getPerms)
                 .collect(Collectors.toSet());
+        // 超级管理员追加通配符 *，前端 hasPerm / 按钮鉴权依此判定全量放行
+        if (superAdmin) {
+            perms.add("*");
+        }
         log.info("【SysPermission】加载用户权限完成，userId={}, superAdmin={}, menus={}, perms={}",
                 userId, superAdmin, menus.size(), perms.size());
         return new UserPermissionModel(menus, perms);

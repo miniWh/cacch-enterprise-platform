@@ -98,6 +98,7 @@ public interface AuthLoginConverter {
                 .status(user.getStatus())
                 .menus(buildMenuTree(permission == null ? List.of() : permission.getMenus()))
                 .perms(permission == null ? Set.of() : permission.getPerms())
+                .superAdmin(model.isSuperAdmin())
                 .build();
     }
 

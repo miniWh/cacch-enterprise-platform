@@ -3,6 +3,8 @@ package com.cacch.enterprise.controller.auth;
 import com.cacch.enterprise.common.exception.BizException;
 import com.cacch.enterprise.common.result.Result;
 import com.cacch.enterprise.common.result.ResultCode;
+import com.cacch.enterprise.common.constant.system.SystemCommonConstants;
+import com.cacch.enterprise.common.model.auth.LoginUser;
 import com.cacch.enterprise.common.utils.LoginUserHolder;
 import com.cacch.enterprise.convert.auth.AuthLoginConverter;
 import com.cacch.enterprise.dto.auth.request.ChangePasswordRequest;
@@ -133,6 +135,28 @@ public class AuthLoginController {
     public Result<Void> changePassword(@Valid @RequestBody ChangePasswordRequest request) {
         authLoginManager.changePassword(LoginUserHolder.getUserId(),
                 request.getOldPassword(), request.getNewPassword());
+        return Result.success();
+    }
+
+    /**
+     * 刷新当前用户的权限缓存（清除 Redis 菜单与权限标识缓存，下次请求回源重建）
+     *
+     * <p>用于通过 SQL 直接变更菜单/权限后，让变更对当前用户即时生效。
+     *
+     * @return 成功返回体（无数据）
+     * @throws BizException 未登录时抛出
+     */
+    @PostMapping("/permission/refresh")
+    public Result<Void> refreshPermissionCache() {
+        Long userId = LoginUserHolder.getUserId();
+        if (userId == null) {
+            throw new BizException(ResultCode.AUTH_NOT_LOGIN);
+        }
+        LoginUser loginUser = LoginUserHolder.get();
+        if (loginUser == null || !loginUser.getRoleCodes().contains(SystemCommonConstants.ROLE_SUPER_ADMIN)) {
+            throw new BizException(ResultCode.AUTH_PERMISSION_DENIED);
+        }
+        authLoginManager.refreshPermissionCache(userId);
         return Result.success();
     }
 

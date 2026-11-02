@@ -92,4 +92,14 @@ public interface IAuthLoginManager {
      * @param userId 目标用户 ID
      */
     void forceOffline(Long userId);
+
+    /**
+     * 刷新当前用户的权限缓存（清除 Redis 中的菜单与权限标识缓存，下次请求回源重建）
+     *
+     * <p>用于通过 SQL 直接变更菜单/权限后，让变更对当前用户即时生效，
+     * 无需等待 12 小时 TTL 自然过期或手动操作 Redis。
+     *
+     * @param userId 当前登录用户 ID
+     */
+    void refreshPermissionCache(Long userId);
 }

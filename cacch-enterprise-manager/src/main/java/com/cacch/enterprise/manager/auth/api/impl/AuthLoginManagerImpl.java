@@ -167,6 +167,8 @@ public class AuthLoginManagerImpl implements IAuthLoginManager {
     /**
      * 加载当前登录用户信息（用户资料 + 权限模型，权限走缓存）
      *
+     * <p>superAdmin 实时查角色表判定（不走权限缓存与登录态快照），保证角色变更后刷新页面即可生效。
+     *
      * @param userId 当前登录用户 ID
      * @return 用户信息模型
      * @throws BizException 用户不存在时抛出
@@ -179,7 +181,9 @@ public class AuthLoginManagerImpl implements IAuthLoginManager {
             throw new BizException(ResultCode.AUTH_NOT_LOGIN);
         }
         user.setPassword(null);
-        return new ProfileModel(user, authPermissionManager.loadWithCache(userId));
+        boolean superAdmin = sysRoleService.listEnabledByUserId(userId).stream()
+                .anyMatch(r -> SystemCommonConstants.ROLE_SUPER_ADMIN.equals(r.getRoleCode()));
+        return new ProfileModel(user, authPermissionManager.loadWithCache(userId), superAdmin);
     }
 
     /**
@@ -240,6 +244,17 @@ public class AuthLoginManagerImpl implements IAuthLoginManager {
     public void forceOffline(Long userId) {
         deleteSessionKeys(userId);
         log.info("【AuthLogin】强制下线完成，userId={}", userId);
+    }
+
+    /**
+     * 刷新当前用户的权限缓存（清除 Redis 菜单与权限标识缓存，下次请求回源重建）
+     *
+     * @param userId 当前登录用户 ID
+     */
+    @Override
+    public void refreshPermissionCache(Long userId) {
+        authPermissionManager.evictUsers(List.of(userId));
+        log.info("【AuthLogin】权限缓存已刷新，userId={}", userId);
     }
 
     /**

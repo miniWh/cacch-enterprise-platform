@@ -50,7 +50,10 @@ async function onCommand(command: string) {
     router.push('/profile')
   } else if (command === 'logout') {
     await auth.logout()
-    router.replace('/login')
+    // 必须整页刷新：动态路由注册是一次性的（dynamicAdded），仅做路由跳转不会清除
+    // 上一个用户已注册的菜单，换账号登录后会沿用旧菜单，同样会陷入路由自环。
+    window.location.hash = '#/login'
+    window.location.reload()
   }
 }
 </script>

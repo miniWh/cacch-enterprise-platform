@@ -50,7 +50,7 @@ import { useRoute, useRouter } from 'vue-router'
 import { ElForm, ElMessage, type FormInstance, type FormRules } from 'element-plus'
 import { User, Lock, Key } from '@element-plus/icons-vue'
 import { getCaptcha } from '../../api/auth'
-import { registerDynamicRoutes } from '../../router'
+import { registerDynamicRoutes, defaultLandingPath } from '../../router'
 import { useAuthStore } from '../../stores/auth'
 
 const router = useRouter()
@@ -98,8 +98,12 @@ async function onSubmit() {
     // 被 matcher 层重定向回登录页，依赖二次导航救回的链路在部分状态下会中断
     await auth.loadProfile()
     registerDynamicRoutes()
-    const redirect = (route.query.redirect as string) || '/dashboard'
-    await router.replace(redirect)
+    // 落地页不能用硬编码的 /dashboard：用户未被分配该菜单时路径未注册，
+    // 会与兜底路由形成 redirect 自环导致栈溢出。优先用回跳地址，
+    // 但只有该地址确已注册时才采用，否则回落到用户实际拥有的第一个菜单页。
+    const wanted = (route.query.redirect as string) || ''
+    const reachable = wanted ? router.getRoutes().some((r) => r.path === wanted) : false
+    await router.replace(reachable ? wanted : defaultLandingPath())
   } catch (e) {
     ElMessage.error((e as Error).message || '登录失败')
     refreshCaptcha()
@@ -117,7 +121,9 @@ async function tryWecomInAppLogin() {
     await auth.wecomLogin(code)
     await auth.loadProfile()
     registerDynamicRoutes()
-    const redirect = (route.query.redirect as string) || '/dashboard'
+    const wanted = (route.query.redirect as string) || ''
+    const reachable = wanted ? router.getRoutes().some((r) => r.path === wanted) : false
+    const redirect = reachable ? wanted : defaultLandingPath()
     // 清除 URL 中的 code 与 redirect，避免刷新重复触发免登
     await router.replace({ path: '/login', query: {} })
     await router.replace(redirect)

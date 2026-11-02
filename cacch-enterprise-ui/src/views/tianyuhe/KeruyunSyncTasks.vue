@@ -3,19 +3,21 @@
     <div class="rounded-xl border border-gray-100 bg-white p-5 shadow-sm">
       <!-- 操作栏：手动触发跨天同步 -->
       <div class="mb-4 flex flex-wrap items-center gap-3">
-        <el-date-picker
-          v-model="syncRange"
-          type="datetimerange"
-          range-separator="至"
-          start-placeholder="同步开始时间"
-          end-placeholder="同步结束时间"
-          class="!w-[380px]"
-          @change="onSyncRangeChange"
-        />
-        <el-button type="primary" :icon="RefreshRight" :loading="triggering" @click="onTriggerSync">
-          触发跨天同步
-        </el-button>
         <span class="text-xs text-gray-400">提示：单次同步时间跨度不得超过 31 天</span>
+        <div class="ml-auto flex items-center gap-3">
+          <el-date-picker
+            v-model="syncRange"
+            type="datetimerange"
+            range-separator="至"
+            start-placeholder="同步开始时间"
+            end-placeholder="同步结束时间"
+            class="sync-range-picker"
+            @change="onSyncRangeChange"
+          />
+          <el-button type="primary" :icon="RefreshRight" :loading="triggering" @click="onTriggerSync">
+            触发跨天同步
+          </el-button>
+        </div>
       </div>
 
       <!-- 同步记录表 -->
@@ -237,3 +239,13 @@ onUnmounted(() => {
   stopPolling()
 })
 </script>
+
+<style scoped>
+/* 时间区间选择器宽度收缩：根节点自动收缩，输入框按 19 位时间字符宽度自适应 */
+.sync-range-picker {
+  width: auto;
+}
+.sync-range-picker :deep(.el-range-input) {
+  width: 19ch;
+}
+</style>

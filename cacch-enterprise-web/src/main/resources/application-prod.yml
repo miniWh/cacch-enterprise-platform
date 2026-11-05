@@ -39,4 +39,4 @@ cacch:
     agent-id: 1000037                               # 自建应用 AgentId
     secret: KwWwvZ1NoYNnGQ6nGHQrzl2VGrq251kDg9EJYydPZ_s     # 自建应用 Secret，禁止硬编码，须外置注入
   cors:
-    allowed-origins: https://your-prod-domain
+    allowed-origins: http://portal.cacch.com:21080

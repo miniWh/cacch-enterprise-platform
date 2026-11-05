@@ -70,14 +70,14 @@ public class SecurityConfiguration {
     }
 
     /**
-     * 跨域配置来源（来源白名单来自 cacch.cors.allowed-origins 配置）
+     * 跨域配置来源（来源模式白名单来自 cacch.cors.allowed-origins 配置，支持通配符 *）
      *
      * @return 跨域配置来源
      */
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(corsProperties.allowedOrigins());
+        configuration.setAllowedOriginPatterns(corsProperties.allowedOrigins());
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("*"));
         configuration.setMaxAge(3600L);

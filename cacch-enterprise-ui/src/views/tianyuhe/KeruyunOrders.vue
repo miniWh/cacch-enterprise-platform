@@ -3,8 +3,9 @@
     <div class="rounded-xl border border-gray-100 bg-white p-5 shadow-sm">
       <!-- 查询条件 -->
       <div class="flex flex-wrap items-center gap-3">
-        <el-input v-model="query.orderId" placeholder="订单ID" clearable class="!w-44" @keyup.enter="fetchPage" />
-        <el-input v-model="query.shopId" placeholder="门店ID" clearable class="!w-36" @keyup.enter="fetchPage" />
+        <el-input v-model="query.orderId" placeholder="订单ID" clearable class="!w-44" @keyup.enter="onSearch" />
+        <el-input v-model="query.itemCode" placeholder="SKU编码" clearable class="!w-36" @keyup.enter="onSearch" />
+        <el-input v-model="query.itemName" placeholder="菜品名称" clearable class="!w-36" @keyup.enter="onSearch" />
         <el-select v-model="query.orderStatus" placeholder="订单状态" clearable class="!w-36" @change="onSearch">
           <el-option v-for="item in ORDER_STATUS_OPTIONS" :key="item.value" :label="item.label" :value="item.value" />
         </el-select>
@@ -26,31 +27,50 @@
         </div>
       </div>
 
-      <!-- 列表 -->
+      <!-- 列表：SKU 维度明细行，同一订单的行相邻、不合并单元格 -->
       <el-table :data="rows" v-loading="loading" class="mt-4" stripe border>
         <el-table-column prop="orderId" label="订单ID" min-width="160" show-overflow-tooltip />
         <el-table-column prop="shopId" label="门店ID" width="110" />
         <el-table-column prop="busiOrderNo" label="业务订单号" min-width="150" show-overflow-tooltip />
-        <el-table-column label="订单状态" width="110">
-          <template #default="{ row }">{{ formatOrderStatus(row.orderStatus) }}</template>
+        <el-table-column prop="orderStatus" label="订单状态" width="100">
+          <template #default="{ row }">{{ row.orderStatus ?? '-' }}</template>
         </el-table-column>
-        <el-table-column label="订单类型" width="110">
-          <template #default="{ row }">{{ formatOrderType(row.orderType) }}</template>
-        </el-table-column>
-        <el-table-column label="订单金额(元)" width="130" align="right">
-          <template #default="{ row }">{{ formatAmount(row.orderAmtYuan) }}</template>
-        </el-table-column>
-        <el-table-column label="优惠金额(元)" width="130" align="right">
-          <template #default="{ row }">{{ formatAmount(row.promoAmtYuan) }}</template>
-        </el-table-column>
-        <el-table-column label="实收金额(元)" width="130" align="right">
-          <template #default="{ row }">{{ formatAmount(row.orderReceivedAmtYuan) }}</template>
+        <el-table-column prop="orderType" label="订单类型" width="100">
+          <template #default="{ row }">{{ row.orderType ?? '-' }}</template>
         </el-table-column>
         <el-table-column label="下单时间" width="170">
-          <template #default="{ row }">{{ formatDateTime(row.openTime) }}</template>
+          <template #default="{ row }">
+            <span class="whitespace-nowrap">{{ formatDateTime(row.openTime) }}</span>
+          </template>
         </el-table-column>
         <el-table-column label="完结时间" width="170">
-          <template #default="{ row }">{{ formatDateTime(row.finishTime) }}</template>
+          <template #default="{ row }">
+            <span class="whitespace-nowrap">{{ formatDateTime(row.finishTime) }}</span>
+          </template>
+        </el-table-column>
+        <el-table-column prop="itemCode" label="SKU编码" min-width="110" show-overflow-tooltip />
+        <el-table-column prop="itemName" label="菜品名称" min-width="140" show-overflow-tooltip />
+        <el-table-column prop="bigTypeName" label="大类" width="90" show-overflow-tooltip />
+        <el-table-column prop="midTypeName" label="中类" width="90" show-overflow-tooltip />
+        <el-table-column prop="unitName" label="单位" width="70" />
+        <el-table-column prop="specName" label="规格" min-width="130" show-overflow-tooltip />
+        <el-table-column label="数量" width="80" align="right">
+          <template #default="{ row }">{{ formatQuantity(row.quantity) }}</template>
+        </el-table-column>
+        <el-table-column label="赠菜" width="70" align="center">
+          <template #default="{ row }">{{ formatGiftFlag(row.giftFlag) }}</template>
+        </el-table-column>
+        <el-table-column label="售卖状态" width="90" align="center">
+          <template #default="{ row }">{{ formatSaleStatus(row.saleStatusTypeCode) }}</template>
+        </el-table-column>
+        <el-table-column label="原始单价(元)" width="110" align="right">
+          <template #default="{ row }">{{ formatAmount(row.itemPriceYuan) }}</template>
+        </el-table-column>
+        <el-table-column label="售价(元)" width="100" align="right">
+          <template #default="{ row }">{{ formatAmount(row.salePriceYuan) }}</template>
+        </el-table-column>
+        <el-table-column label="销售金额(元)" width="110" align="right">
+          <template #default="{ row }">{{ formatAmount(row.itemSaleAmtYuan) }}</template>
         </el-table-column>
       </el-table>
 
@@ -69,57 +89,65 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, computed } from 'vue'
+import { ref, reactive } from 'vue'
 import { Search, RefreshLeft, Download } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
 import * as XLSX from 'xlsx'
 import {
-  pageOrders,
-  exportOrders,
-  type KeruyunOrderQuery,
-  type KeruyunOrderVO
+  pageOrderItems,
+  exportOrderItems,
+  type KeruyunOrderItemQuery,
+  type KeruyunOrderItemVO
 } from '../../api/keruyun'
 
-// ---------- 枚举映射（英文枚举 → 中文，不含数字序号） ----------
-const ORDER_STATUS_MAP: Record<string, string> = {
-  WAIT_PROCESSED: '待处理',
-  WAIT_SETTLED: '待结账',
-  SETTLED: '已结账',
-  REFUND: '已退单',
-  INVALID: '已作废',
-  CANCELLED: '已取消',
-  REJECTED: '已拒绝',
-  SUCCESS: '已完成'
+// ---------- 筛选枚举选项（按接口文档 12.3，value 传客如云原始枚举值） ----------
+const ORDER_STATUS_OPTIONS: { value: string; label: string }[] = [
+  { value: 'WAIT_PROCESSED', label: '待处理' },
+  { value: 'ORDER_RECEIVED', label: '已接单' },
+  { value: 'SUCCESS', label: '成功' },
+  { value: 'WAIT_SETTLED', label: '待结账' },
+  { value: 'SETTLED', label: '已结账' },
+  { value: 'REFUND', label: '已退单' },
+  { value: 'CLOSED', label: '已关闭' },
+  { value: 'INVALID', label: '已作废' },
+  { value: 'CANCELLED', label: '已取消' },
+  { value: 'REJECTED', label: '已拒单' },
+  { value: 'ANTI_SETTLED', label: '已反结' }
+]
+
+const ORDER_TYPE_OPTIONS: { value: string; label: string }[] = [
+  { value: 'FOR_HERE', label: '堂食' },
+  { value: 'PLATFORM_TAKE_OUT', label: '平台外卖' },
+  { value: 'SELF_TAKE_OUT', label: '门店外带' },
+  { value: 'SELF_TAKE', label: '自提' },
+  { value: 'NO_ORDER_CASHIER', label: '无单收银' },
+  { value: 'MEMBER_STORE', label: '会员储值' },
+  { value: 'MEMBER_MANUAL_STORE', label: '会员手工储值' },
+  { value: 'REPAYMENT_ORDER', label: '销账订单' }
+]
+
+// ---------- 展示格式化 ----------
+// 订单状态/类型：服务端已转中文展示值，未识别枚举原样返回，前端直接展示
+
+/** 赠菜标记转展示文案 */
+function formatGiftFlag(flag?: number): string {
+  if (flag === null || flag === undefined) return '-'
+  return flag === 1 ? '是' : '否'
 }
 
-const ORDER_TYPE_MAP: Record<string, string> = {
-  FOR_HERE: '堂食',
-  PLATFORM_TAKE_OUT: '平台外卖',
-  SELF_TAKE_OUT: '自管外卖',
-  MEMBER_STORE: '会员充值',
-  NO_ORDER_CASHIER: '无单收银',
-  REPAYMENT_ORDER: '销账订单'
-}
-
-const ORDER_STATUS_OPTIONS = Object.entries(ORDER_STATUS_MAP).map(([value, label]) => ({ value, label }))
-const ORDER_TYPE_OPTIONS = Object.entries(ORDER_TYPE_MAP).map(([value, label]) => ({ value, label }))
-
-/** 订单状态转中文，未知枚举原样返回 */
-function formatOrderStatus(value?: string): string {
-  if (!value) return '-'
-  return ORDER_STATUS_MAP[value] ?? value
-}
-
-/** 订单类型转中文，未知枚举原样返回 */
-function formatOrderType(value?: string): string {
-  if (!value) return '-'
-  return ORDER_TYPE_MAP[value] ?? value
+/** 售卖状态转展示文案 */
+function formatSaleStatus(code?: string): string {
+  if (!code) return '-'
+  if (code === 'NORMAL') return '销售'
+  if (code === 'DISCARD') return '退菜'
+  return code
 }
 
 // ---------- 查询条件 ----------
-const query = reactive<KeruyunOrderQuery>({
+const query = reactive<KeruyunOrderItemQuery>({
   orderId: '',
-  shopId: '',
+  itemCode: '',
+  itemName: '',
   orderStatus: '',
   orderType: '',
   openTimeFrom: undefined,
@@ -142,10 +170,10 @@ function syncRanges() {
 }
 
 /** 构造实际请求参数（剔除空值） */
-function buildQueryParams(): KeruyunOrderQuery {
+function buildQueryParams(): KeruyunOrderItemQuery {
   syncRanges()
-  const params: KeruyunOrderQuery = {}
-  ;(Object.keys(query) as (keyof KeruyunOrderQuery)[]).forEach((k) => {
+  const params: KeruyunOrderItemQuery = {}
+  ;(Object.keys(query) as (keyof KeruyunOrderItemQuery)[]).forEach((k) => {
     const v = query[k]
     if (v !== '' && v !== undefined && v !== null) {
       ;(params as Record<string, unknown>)[k] = v
@@ -155,7 +183,7 @@ function buildQueryParams(): KeruyunOrderQuery {
 }
 
 // ---------- 列表与分页 ----------
-const rows = ref<KeruyunOrderVO[]>([])
+const rows = ref<KeruyunOrderItemVO[]>([])
 const total = ref(0)
 const pageNum = ref(1)
 const pageSize = ref(20)
@@ -164,7 +192,7 @@ const loading = ref(false)
 async function fetchPage() {
   loading.value = true
   try {
-    const res = await pageOrders(buildQueryParams(), pageNum.value, pageSize.value)
+    const res = await pageOrderItems(buildQueryParams(), pageNum.value, pageSize.value)
     rows.value = res.records ?? []
     total.value = res.total ?? 0
   } catch (e) {
@@ -182,7 +210,8 @@ function onSearch() {
 
 function onReset() {
   query.orderId = ''
-  query.shopId = ''
+  query.itemCode = ''
+  query.itemName = ''
   query.orderStatus = ''
   query.orderType = ''
   openTimeRange.value = null
@@ -194,23 +223,32 @@ function onReset() {
 const exporting = ref(false)
 
 /** Excel 列定义（与表格展示列一致） */
-const EXPORT_COLUMNS: { key: keyof KeruyunOrderVO; label: string }[] = [
+const EXPORT_COLUMNS: { key: keyof KeruyunOrderItemVO; label: string }[] = [
   { key: 'orderId', label: '订单ID' },
   { key: 'shopId', label: '门店ID' },
   { key: 'busiOrderNo', label: '业务订单号' },
   { key: 'orderStatus', label: '订单状态' },
   { key: 'orderType', label: '订单类型' },
-  { key: 'orderAmtYuan', label: '订单金额(元)' },
-  { key: 'promoAmtYuan', label: '优惠金额(元)' },
-  { key: 'orderReceivedAmtYuan', label: '实收金额(元)' },
   { key: 'openTime', label: '下单时间' },
-  { key: 'finishTime', label: '完结时间' }
+  { key: 'finishTime', label: '完结时间' },
+  { key: 'itemCode', label: 'SKU编码' },
+  { key: 'itemName', label: '菜品名称' },
+  { key: 'bigTypeName', label: '大类' },
+  { key: 'midTypeName', label: '中类' },
+  { key: 'unitName', label: '单位' },
+  { key: 'specName', label: '规格' },
+  { key: 'quantity', label: '数量' },
+  { key: 'giftFlag', label: '赠菜' },
+  { key: 'saleStatusTypeCode', label: '售卖状态' },
+  { key: 'itemPriceYuan', label: '原始单价(元)' },
+  { key: 'salePriceYuan', label: '售价(元)' },
+  { key: 'itemSaleAmtYuan', label: '销售金额(元)' }
 ]
 
 async function onExport() {
   exporting.value = true
   try {
-    const list = await exportOrders(buildQueryParams())
+    const list = await exportOrderItems(buildQueryParams())
     if (!list || list.length === 0) {
       ElMessage.warning('当前条件下无数据可导出')
       return
@@ -223,11 +261,11 @@ async function onExport() {
           if (c.key === 'openTime' || c.key === 'finishTime') {
             return formatDateTime(v as string)
           }
-          if (c.key === 'orderStatus') {
-            return formatOrderStatus(v as string)
+          if (c.key === 'giftFlag') {
+            return formatGiftFlag(v as number)
           }
-          if (c.key === 'orderType') {
-            return formatOrderType(v as string)
+          if (c.key === 'saleStatusTypeCode') {
+            return formatSaleStatus(v as string)
           }
           return v ?? ''
         })
@@ -235,8 +273,8 @@ async function onExport() {
     ]
     const ws = XLSX.utils.aoa_to_sheet(aoa)
     const wb = XLSX.utils.book_new()
-    XLSX.utils.book_append_sheet(wb, ws, '客如云订单')
-    const fileName = `客如云订单_${formatFileTimestamp()}.xlsx`
+    XLSX.utils.book_append_sheet(wb, ws, '客如云订单明细')
+    const fileName = `客如云订单明细_${formatFileTimestamp()}.xlsx`
     XLSX.writeFile(wb, fileName)
     ElMessage.success(`已导出 ${list.length} 条数据`)
   } catch (e) {
@@ -254,6 +292,12 @@ function formatDateTime(value?: string): string {
   if (!value) return '-'
   // 接口返回 ISO-8601，如 2026-10-21T12:30:00
   return value.replace('T', ' ').substring(0, 19)
+}
+
+/** 数量格式化：空值显示 - */
+function formatQuantity(value?: number): string {
+  if (value === null || value === undefined) return '-'
+  return String(value)
 }
 
 /** 金额格式化：保留 2 位小数，空值显示 - */

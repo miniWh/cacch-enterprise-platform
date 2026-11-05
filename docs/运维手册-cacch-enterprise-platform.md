@@ -29,6 +29,7 @@
   - [3.6 前端发版](#sec-3-6)
   - [3.7 回滚](#sec-3-7)
   - [3.8 静态资源缓存策略](#sec-3-8)
+  - [3.9 本地免密登录服务器（一次性配置）](#sec-3-9)
 - [四、健康检查](#sec-4)
   - [4.1 一键体检](#sec-4-1)
   - [4.2 外部依赖连通性](#sec-4-2)
@@ -294,12 +295,19 @@ bash deploy/07-build-local-backend.sh                # 构建 → 上传 → 远
 bash deploy/07-build-local-backend.sh --build-only   # 只构建，不上传
 ```
 
+> **Skinny War 发版会自动同步业务模块 jar**：脚本在传 War 之后，会把
+> async/common/dao/integration/manager/service 6 个模块 jar 一并覆盖到
+> `/opt/cacch/tomcat/lib/`（覆盖前自动备份到 `/opt/cacch/backup/lib-jars-*`）。
+> 这是必须的——跨模块代码变更时，若 lib 里仍是旧 jar，运行期会抛 `NoSuchMethodError`
+> （真实案例：`ProfileModel.isSuperAdmin()`，见故障表 19）。
+
 **前置条件**（脚本会自动探测，无需配置 PATH）：
 
 - JDK 21：自动探测 `D:/Software/Java/jdk21*` 等常见位置，或读取 `JAVA_HOME`
 - Maven 3.9+：优先用 PATH 里的 `mvn`，否则探测 IntelliJ IDEA 自带的
   `plugins/maven/lib/maven3/bin/mvn`
 - 首次构建需下载依赖（约 40 秒，之后增量约 15 秒）
+- **SSH 免密**：已配置密钥认证（见 3.9），执行时不再输入密码
 - 若本地无 `~/.m2/settings.xml`，建议配一份阿里云镜像，否则走 Maven Central 很慢：
 
 ```xml
@@ -335,8 +343,11 @@ bash deploy/06-deploy-frontend.sh     # 本地执行：build → scp → restore
 ```bash
 cd cacch-enterprise-ui && npm run build
 scp -r dist/* felix@10.80.62.200:/opt/cacch/ui/dist/
-ssh felix@10.80.62.200 'sudo restorecon -R /opt/cacch/ui/dist'   # SELinux，必做
+ssh felix@10.80.62.200 'sudo -n /usr/sbin/restorecon -R /opt/cacch/ui/dist'   # SELinux，必做
 ```
+
+> `sudo -n`（非交互）能直接生效，是因为 `/etc/sudoers.d/cacch` 已对 `restorecon` 单独授权；
+> **不要写成 `sudo sh -c 'restorecon ...'`**，包一层后匹配不到授权规则，会退回要密码。
 
 [↑ 返回顶部](#top)
 
@@ -399,6 +410,48 @@ location ^~ /assets/ {
 > ⚠️ **发版后建议通知用户 Ctrl+F5 硬刷新一次**：已经缓存了旧 `index.html` 的浏览器
 > 不受新配置影响（旧响应没有 `Cache-Control`，浏览器按启发式策略仍会直接命中缓存），
 > 必须手动刷新一次才会重新拉取入口页；之后的访问就自动保持最新了。
+
+[↑ 返回顶部](#top)
+
+---
+
+### 3.9 本地免密登录服务器（一次性配置）
+<a id="sec-3-9"></a>
+
+> **执行位置：本地**（只需配一次，之后 3.5、3.6 发版全程不再输密码）。
+
+采用 **SSH 密钥认证**，不是把密码写进脚本（密码明文落盘有泄露风险，且 scp/ssh/sudo 三处都得单独处理）：
+
+```bash
+# 1. 本地生成密钥（已有 ~/.ssh/id_ed25519 可跳过；-N "" 表示不设口令）
+ssh-keygen -t ed25519 -C "hongfu_zhou@cacch.com" -N ""
+
+# 2. 公钥装到服务器（此步需输一次密码）
+ssh-copy-id -i ~/.ssh/id_ed25519.pub felix@10.80.62.200
+
+# 3. 验证：三条都通过才算配好（BatchMode 强制不弹密码提示，配错会立刻报错而不是卡住）
+ssh -o BatchMode=yes 10.80.62.200 'echo SSH-KEY-OK'
+scp /tmp/t.txt 10.80.62.200:/tmp/t.txt && echo SCP-OK
+ssh 10.80.62.200 'sudo -n systemctl is-active cacch-tomcat'
+```
+
+本地 `~/.ssh/config`（简化命令、避免首次连接卡在指纹确认）：
+
+```
+Host 10.80.62.200 cacch cacch-server
+    HostName 10.80.62.200
+    User felix
+    IdentityFile ~/.ssh/id_ed25519
+    IdentitiesOnly yes
+    StrictHostKeyChecking accept-new
+    ServerAliveInterval 30
+```
+
+> Windows(Git Bash) 下**不要启用 `ControlMaster`** 连接复用，会报
+> `mux_client_request_session: read from master failed`。
+> 免密生效依赖两个前提：① 服务器 `~/.ssh` 为 700、`authorized_keys` 为 600（属主 felix）；
+> ② sudo 只能写 `sudo -n <具体命令>`，不能 `sudo sh -c '...'`（匹配不到 sudoers 规则就要密码）。
+> 详细排错见 `deploy/README-ssh-key.md`。服务器密码 `felix` 不变，作为换机/密钥丢失时的兜底。
 
 [↑ 返回顶部](#top)
 
@@ -494,6 +547,7 @@ PGPASSWORD='esb' psql -h 10.80.86.93 -U esb -d cdb -tAc \
 | 16 | 加了 `location /assets/` 缓存规则却不生效 | 普通前缀匹配的优先级**低于**正则 `location ~* \.(js\|css\|...)$` | 必须写成 `location ^~ /assets/`，否则被正则 location 抢走，策略静默失效 |
 | 17 | **登录成功后页面卡死、一直 loading（像请求超时），强刷/清缓存全部无效**；access log 显示 `login`、`profile` 均为 200，但之后**再无任何请求** | 该账号菜单里**没有 `/dashboard`**，登录后跳转这个未注册路径 → 命中兜底 `redirect /login` → 守卫又回跳 `/dashboard` → **无限自环、栈溢出** | 已修：落地页改为动态取用户第一个可用菜单（`defaultLandingPath()`），无菜单时落静态页 `/profile`。排查命令：`sudo grep -E 'auth/login\|auth/profile' /var/log/nginx/cacch-access.log`（注意需 sudo，日志属 root:nginx） |
 | 18 | 换账号登录后菜单不对 / 同样卡死 | 退出登录只做了路由跳转，**未刷新页面**，动态路由注册是一次性的（`dynamicAdded`），仍沿用上一个账号的菜单 | 已修：退出登录改为整页刷新（hash 置 `#/login` 后 `reload()`） |
+| 19 | **登录后部分接口 500（日志报 `NoSuchMethodError`，如 `ProfileModel.isSuperAdmin()`），本地运行却正常** | Skinny War 发版只传了 War，**Tomcat lib 里的业务模块 jar 还是旧版**：Web 模块新代码调用了旧 jar 中不存在的方法。本地正常是因为 IDE 全模块一起编译 | 已修：`07-build-local-backend.sh` 每次发版自动同步 6 个模块 jar（async/common/dao/integration/manager/service，共约 185KB）到 `/opt/cacch/tomcat/lib/`，旧版备份于 `/opt/cacch/backup/lib-jars-*`。手工修复：本地 `mvn install -DskipTests` 后把各模块 `target/*.jar` scp 到 lib 再重启 |
 
 ### 5.1 排查速查命令
 <a id="sec-5-1"></a>
@@ -595,6 +649,8 @@ pg_dump -h 10.80.86.93 -U esb -n enterprise -Fc -f enterprise_$(date +%Y%m%d).du
 | 2026-10-30 | 新增本地构建上传发版：`deploy/07-build-local-backend.sh` + `deploy/install-war.sh` |
 | 2026-10-30 | 修复游离 JVM 导致的重启风暴：service 补 `PIDFile`、加 `StartLimitBurst`；发版脚本强制走 systemd 并做端口预检 |
 | 2026-10-30 | 配置限定命令的免密 sudo：`deploy/sudoers-cacch` |
+| 2026-11-04 | 修复 Skinny War 发版未同步模块 jar 导致的 `NoSuchMethodError`；发版脚本新增模块 jar 自动同步（见故障表 19） |
+| 2026-11-05 | 配置 SSH 密钥免密登录，`06`/`07` 发版脚本全程无需输密码（见 3.9、`deploy/README-ssh-key.md`） |
 
 [↑ 返回顶部](#top)
 
@@ -605,6 +661,7 @@ pg_dump -h 10.80.86.93 -U esb -n enterprise -Fc -f enterprise_$(date +%Y%m%d).du
 - 部署脚本：`deploy/01` ~ `06`
 - 本地构建上传发版：`deploy/07-build-local-backend.sh`（本地）+ 服务器 `/opt/cacch/install-war.sh`
 - 免密 sudo 配置：`deploy/sudoers-cacch` → 服务器 `/etc/sudoers.d/cacch`
+- SSH 免密登录配置：`deploy/README-ssh-key.md`（密钥认证，替代反复输入密码）
 - 服务器发版：服务器 `/opt/cacch/src/deploy.sh`（含自动备份，`--full` 用于同步依赖）
 - 回滚：服务器 `/opt/cacch/rollback.sh`（由 `deploy/rollback.sh` 上传而来）
 - 服务单元：`deploy/cacch-tomcat.service` → 服务器 `/etc/systemd/system/cacch-tomcat.service`

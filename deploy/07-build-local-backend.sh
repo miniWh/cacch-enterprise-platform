@@ -5,7 +5,7 @@
 # 适用场景：日常改业务代码后发版，不想占用服务器 2 核 3.5G 的 CPU/内存
 # 前提：本地有 JDK 21 + Maven 3.9+（会自动探测，无需配置 PATH）
 # 说明：Skinny War 模式下 War 仅约 120KB（不含依赖），上传秒级完成
-#       执行过程中会提示输入 felix 的 SSH 密码（约 3 次）
+#       SSH 已配置密钥免密（见 deploy/README-ssh-key.md），全程无需输入密码
 #
 # 用法：
 #   ./deploy/07-build-local-backend.sh            # 构建 + 上传 + 部署
@@ -77,6 +77,20 @@ log "3/5 上传到服务器 ${REMOTE_STAGING}"
 ssh "${HOST}" "mkdir -p ${REMOTE_STAGING}"
 scp "${SCRIPT_DIR}/install-war.sh" "${HOST}:/opt/cacch/install-war.sh"
 scp "${WAR}" "${HOST}:${REMOTE_STAGING}/cacch-enterprise-web.war"
+
+# 同步业务模块 jar 到 Tomcat lib（Skinny War 模式必做！）：
+# 模块代码（manager/service/common 等）有改动时，若 lib 里还是旧 jar，
+# 运行期会抛 NoSuchMethodError（如 isSuperAdmin）。
+MODULES="async common dao integration manager service"
+log "3.1 同步业务模块 jar 到 Tomcat lib（${MODULES}）"
+LIB_BACKUP="/opt/cacch/backup/lib-jars-$(date +%Y%m%d%H%M%S)"
+ssh "${HOST}" "mkdir -p ${LIB_BACKUP} && cp /opt/cacch/tomcat/lib/cacch-enterprise-*-SNAPSHOT.jar ${LIB_BACKUP}/"
+for m in ${MODULES}; do
+    JAR="${PROJECT_DIR}/cacch-enterprise-${m}/target/cacch-enterprise-${m}-1.0.0-SNAPSHOT.jar"
+    [ -f "${JAR}" ] || die "未找到模块 jar：${JAR}"
+    scp -q "${JAR}" "${HOST}:/opt/cacch/tomcat/lib/" || die "上传模块 jar 失败：${m}"
+done
+echo ">> 模块 jar 已同步（旧版备份于 ${LIB_BACKUP}）"
 ssh "${HOST}" "chmod +x /opt/cacch/install-war.sh"
 
 # ---------- 4. 远程安装 ----------
@@ -85,10 +99,14 @@ ssh "${HOST}" "/opt/cacch/install-war.sh"
 
 # ---------- 5. 验收 ----------
 log "5/5 验收"
+# 应用日志真实路径为 /opt/cacch/logs（systemd WorkingDirectory=/opt/cacch + logback 相对路径），
+# 不是 tomcat/logs，写错会导致这里的错误统计永远是 0。
 ssh "${HOST}" "echo '--- 服务状态 ---'; systemctl is-active cacch-tomcat; \
                echo '--- 首页 ---'; curl -s -o /dev/null -w '%{http_code}\n' --max-time 5 http://127.0.0.1/; \
                echo '--- 接口 ---'; curl -s -o /dev/null -w '%{http_code}\n' --max-time 5 http://127.0.0.1/api/v1/auth/captcha; \
-               echo '--- 最近错误 ---'; grep -c ERROR /opt/cacch/tomcat/logs/cacch-enterprise.log 2>/dev/null || echo 0"
+               echo '--- 本次启动后 ERROR 数 ---'; \
+               awk '/Starting CacchEnterpriseApplication/{b=\"\"} {b=b \$0 ORS} END{print b}' \
+                   /opt/cacch/logs/cacch-enterprise.log | grep ERROR | wc -l"
 
 log "===== 完成 ====="
 echo "回滚：ssh ${HOST} '/opt/cacch/rollback.sh list'"

@@ -4,7 +4,7 @@
 #
 # 前置：本地已装 Node.js 20+ 且 cacch-enterprise-ui/node_modules 已就绪
 # 说明：服务器仅 2 核 3.5G，Vite build 在本地跑更快、不与 Tomcat 抢内存
-#       执行过程中会提示输入 felix 的 SSH 密码（约 2~3 次）
+#       SSH 已配置密钥免密（见 deploy/README-ssh-key.md），全程无需输入密码
 # ============================================================
 set -euo pipefail
 
@@ -26,7 +26,8 @@ log "3/4 上传 dist"
 scp -r dist/* "${HOST}:${REMOTE_DIR}/"
 
 log "4/4 修正 SELinux 上下文（否则 Nginx 读取被拒）"
-ssh "${HOST}" "sudo -S -p '' sh -c 'restorecon -Rv ${REMOTE_DIR}'" 2>&1 | tail -3
+# 直接调用 restorecon（sudoers 免密仅授权该命令本身，不能用 sh -c 包一层）
+ssh "${HOST}" "sudo -n /usr/sbin/restorecon -Rv ${REMOTE_DIR}" 2>&1 | tail -3
 
 log "===== 完成 ====="
 ssh "${HOST}" "echo '文件数：' \$(find ${REMOTE_DIR} -type f | wc -l); \
